@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/auth";
+import { signOut } from "@/auth";
 
-export function SignInForm() {
+export function SignOutForm() {
     return (
         <form
             action={async () => {
                 "use server";
-                await signIn("google");
+                await signOut();
             }}
         >
             <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Login to your account</h1>
+                <h1 className="text-2xl font-bold">Log out</h1>
                 <p className="text-balance text-sm text-muted-foreground"></p>
             </div>
             <div className="grid gap-6">
@@ -21,7 +21,7 @@ export function SignInForm() {
                             fill="currentColor"
                         />
                     </svg>
-                    Continue with Google
+                    Log out
                 </Button>
             </div>
         </form>
