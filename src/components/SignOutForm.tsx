@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { signOut } from "@/auth";
+import { signOut, auth } from "@/auth";
 
-export function SignOutForm() {
+export async function SignOutForm() {
+    const session = await auth();
+    console.log(session)
     return (
         <form
             action={async () => {
@@ -10,7 +12,7 @@ export function SignOutForm() {
             }}
         >
             <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Log out</h1>
+                <h1 className="text-2xl font-bold">{session?.user.name}</h1>
                 <p className="text-balance text-sm text-muted-foreground"></p>
             </div>
             <div className="grid gap-6">
