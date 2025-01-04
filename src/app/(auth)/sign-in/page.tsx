@@ -1,7 +1,7 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import { SignInForm } from "@/components/SigninForm";
 import { Button } from "@/components/ui/button";
-import { signIn, auth } from "@/auth";
+import { auth } from "@/auth";
 import { SignOutForm } from "@/components/SignOutForm";
 
 export default async function LoginPage() {
