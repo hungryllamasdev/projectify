@@ -90,7 +90,7 @@ model Project {
   // Relations
   // workspace   Workspace                @relation(fields: [workspaceId], references: [id])
   // members     ProjectWorkspaceMember[]
-  // tasks       Task[]
+  tasks Task[]
   // Changelog   Changelog[]
   // invitations ProjectInvitation[]
 
@@ -99,7 +99,7 @@ model Project {
 
 model Task {
   id          String       @id @default(cuid())
-  projectId   String
+  projectID   String
   // parentTaskId String?
   title       String
   type        TaskType
@@ -109,10 +109,10 @@ model Task {
   isPinned    Boolean      @default(false)
   priority    TaskPriority
   dueDate     DateTime?
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  // project     Project          @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectID], references: [id])
   // parentTask  Task?            @relation("ParentTask", fields: [parentTaskId], references: [id])
   // subtasks    Task[]           @relation("ParentTask")
   // assignments TaskAssignment[]
