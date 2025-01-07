@@ -30,7 +30,7 @@ interface WorkspaceItem {
 }
 
 export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const [isCollapsed, setIsCollapsed] = React.useState(true)
   const [expandedSections, setExpandedSections] = React.useState<string[]>(['workspace-1'])
   const router = useRouter()
 
