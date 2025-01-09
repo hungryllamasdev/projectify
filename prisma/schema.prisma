@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,87 +14,50 @@ model User {
   avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true) //deactivated or something like that
+  isActive  Boolean  @default(true)
 
-  // Relations
-  // workspaces ProjectWorkspaceMember[]
-  // tasks      TaskAssignment[]
-  // comments   Comment[]
-  //attachments  Attachment[]
-  // Changelog  Changelog[]
-
+  projectAssignments ProjectAssignment[]
+  
   @@map("users")
 }
 
-// model Workspace {
-//   id          String   @id @default(cuid())
-//   name        String
-//   description String?
-//   created_at  DateTime @default(now())
-//   updated_at  DateTime @updatedAt
-
-//   // Relations
-//   members     ProjectWorkspaceMember[]
-//   projects    Project[]
-//   invitations WorkspaceInvitation[]
-
-//   @@map("workspaces")
-// }
-
-// enum WorkspaceRole {
-//   OWNER
-//   MEMBER
-// }
-
-// enum ProjectRole {
-//   LEADER
-//   MEMBER
-//   VIEWER
-// }
-
-// model ProjectWorkspaceMember {
-//   id            String        @id @default(cuid())
-//   userId        String
-//   workspaceId   String?
-//   projectId     String?
-//   workspaceRole WorkspaceRole @default(MEMBER)
-//   projectRole   ProjectRole   @default(MEMBER)
-//   joined_at     DateTime      @default(now())
-//   left_at       DateTime?
-
-//   // Relations
-//   user      User       @relation(fields: [userId], references: [id])
-//   workspace Workspace? @relation(fields: [workspaceId], references: [id])
-//   project   Project?   @relation(fields: [projectId], references: [id])
-
-//   @@unique([userId, workspaceId, projectId])
-//   @@map("project_workspace_members")
-// }
-
 model Project {
   id          String   @id @default(cuid())
-  // workspaceId String
   name        String
   description String?
-  // status      String
   startDate   DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
-  // workspace   Workspace                @relation(fields: [workspaceId], references: [id])
-  // members     ProjectWorkspaceMember[]
-  tasks Task[]
-  // Changelog   Changelog[]
-  // invitations ProjectInvitation[]
+  members     ProjectAssignment[]
+  tasks       Task[]
 
   @@map("projects")
+}
+
+model ProjectAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+  @@map("project_assignments")
+}
+
+enum ProjectRole {
+  OWNER
+  MEMBER
+  VIEWER
 }
 
 model Task {
   id          String       @id @default(cuid())
   projectID   String
-  // parentTaskId String?
   title       String
   type        TaskType
   description String?
@@ -113,13 +70,7 @@ model Task {
   updatedAt   DateTime     @updatedAt
 
   project Project @relation(fields: [projectID], references: [id])
-  // parentTask  Task?            @relation("ParentTask", fields: [parentTaskId], references: [id])
-  // subtasks    Task[]           @relation("ParentTask")
-  // assignments TaskAssignment[]
-  // comments    Comment[]
-  // Changelog   Changelog[]
 
-  // @@index([status, isPinned])
   @@map("tasks")
 }
 
@@ -141,97 +92,3 @@ enum TaskPriority {
   MEDIUM
   LOW
 }
-
-// model TaskAssignment {
-//   id          String   @id @default(cuid())
-//   taskId      String
-//   userId      String
-//   assigned_at DateTime @default(now())
-
-//   // Relations
-//   task Task @relation(fields: [taskId], references: [id])
-//   user User @relation(fields: [userId], references: [id])
-
-//   @@unique([taskId, userId])
-//   @@map("task_assignments")
-// }
-
-// model Comment {
-//   id              String      @id @default(cuid())
-//   taskId          String
-//   userId          String
-//   content         String
-//   parentCommentId String? // For threads
-//   type            CommentType @default(USER) // New field
-//   created_at      DateTime    @default(now())
-//   updated_at      DateTime    @updatedAt
-
-//   task Task @relation(fields: [taskId], references: [id])
-//   user User @relation(fields: [userId], references: [id])
-// }
-
-// enum CommentType {
-//   USER
-//   SYSTEM
-// }
-
-// model Changelog {
-//   id          String   @id @default(cuid())
-//   projectId   String
-//   taskId      String
-//   completedBy String // User who completed the task
-//   completedAt DateTime @default(now())
-
-//   project Project @relation(fields: [projectId], references: [id])
-//   task    Task    @relation(fields: [taskId], references: [id])
-//   user    User    @relation(fields: [completedBy], references: [id])
-
-//   @@map("changelogs")
-// }
-
-// model WorkspaceInvitation {
-//   id             String           @id @default(cuid())
-//   workspaceId    String
-//   token          String           @unique
-//   role           WorkspaceRole
-//   created_at     DateTime         @default(now())
-//   expires_at     DateTime?
-//   status         InvitationStatus @default(ACTIVE)
-//   usage_limit    Int              @default(1)
-//   remaining_uses Int              @default(1)
-
-//   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-//   @@index([token, status])
-//   @@map("workspace_invitations")
-// }
-
-// model ProjectInvitation {
-//   id             String           @id @default(cuid())
-//   projectId      String
-//   token          String           @unique
-//   role           ProjectRole
-//   created_at     DateTime         @default(now())
-//   expires_at     DateTime?
-//   status         InvitationStatus @default(ACTIVE)
-//   usage_limit    Int              @default(1)
-//   remaining_uses Int              @default(1)
-
-//   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-//   @@index([token, status])
-//   @@map("project_invitations")
-// }
-
-// // Invitation Type and Status Enums
-// enum InvitationType {
-//   WORKSPACE
-//   PROJECT
-// }
-
-// enum InvitationStatus {
-//   ACTIVE
-//   USED
-//   EXPIRED
-//   REVOKED
-// }
