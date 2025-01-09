@@ -1,15 +1,50 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function GET(request: NextRequest) {
-    return NextResponse.json(
-        { error: "Internal Server Error" },
-        { status: 500 }
-    );
-}
+    try {
+        const session = await auth()
 
+        if (!session || !session.user?.id) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        // Fetch projects where the user is a member
+        const userProjects = await prisma.project.findMany({
+            where: {
+                members: {
+                    some: {
+                        userId: session.user.id
+                    }
+                }
+            }
+        });
+
+        return NextResponse.json(userProjects, { status: 200 });
+    } catch (error) {
+        console.error("Error fetching projects:", error);
+        return NextResponse.json(
+            { error: "An error occurred while fetching projects" },
+            { status: 500 }
+        );
+    }
+}
 export async function POST(request: NextRequest) {
     try {
+
+        const session = await auth()
+
+        if (!session || !session.user?.id) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
         const body = await request.json();
         const { name, description, startDate } = body;
 
@@ -25,6 +60,12 @@ export async function POST(request: NextRequest) {
                 name,
                 description,
                 startDate: new Date(startDate),
+                members: {
+                    create: {
+                        userId: session.user.id,
+                        role: "OWNER",
+                    },
+                },
             },
         });
 
