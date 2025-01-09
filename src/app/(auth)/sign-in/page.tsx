@@ -1,8 +1,8 @@
 import { GalleryVerticalEnd } from "lucide-react";
-import { SignInForm } from "@/components/SigninForm";
+import { SignInForm } from "@/components/auth/SigninForm";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
-import { SignOutForm } from "@/components/SignOutForm";
+import { SignOutForm } from "@/components/auth/SignOutForm";
 
 export default async function LoginPage() {
     const session = await auth();
