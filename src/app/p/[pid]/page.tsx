@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Dashboard from "@/components/project/Dashboard";
 import { CustomKanban } from "@/components/project/Kanban";
+import Calendar from "@/components/project/Calendar";
 
 interface Task {
     id: string;
@@ -252,6 +253,9 @@ export default function ProjectDashboard() {
             </TabsContent>
             <TabsContent value="kanban">
                 <CustomKanban />
+            </TabsContent>
+            <TabsContent value="calendar">
+                <Calendar />
             </TabsContent>
         </>
     );
