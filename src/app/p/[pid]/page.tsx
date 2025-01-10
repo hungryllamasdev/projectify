@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Dashboard from "@/components/project/Dashboard";
 import { CustomKanban } from "@/components/project/Kanban";
 import Calendar from "@/components/project/Calendar";
+import List from "@/components/project/List";
+import GanttChart from "@/components/project/GanttChart";
 
 interface Task {
     id: string;
@@ -256,6 +258,12 @@ export default function ProjectDashboard() {
             </TabsContent>
             <TabsContent value="calendar">
                 <Calendar />
+            </TabsContent>
+            <TabsContent value="list">
+                <List />
+            </TabsContent>
+            <TabsContent value="gantt">
+                <GanttChart />
             </TabsContent>
         </>
     );
