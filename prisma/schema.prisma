@@ -19,6 +19,7 @@ model User {
   projectAssignments ProjectAssignment[]
   
   @@map("users")
+  ActivityLog ActivityLog[]
 }
 
 model Project {
@@ -33,6 +34,7 @@ model Project {
   tasks       Task[]
 
   @@map("projects")
+  ActivityLog ActivityLog[]
 }
 
 model ProjectAssignment {
@@ -91,4 +93,33 @@ enum TaskPriority {
   HIGH
   MEDIUM
   LOW
+}
+
+model ActivityLog {
+  id          String      @id @default(cuid())
+  projectId   String
+  userId      String?
+  type        ActivityType
+  taskId      String?
+  timestamp   DateTime    @default(now())
+
+  project     Project     @relation(fields: [projectId], references: [id])
+  user        User?       @relation(fields: [userId], references: [id])
+
+  @@index([projectId])
+  @@index([userId])
+  @@map("activity_logs")
+}
+
+enum ActivityType {
+  CREATE_TASK
+  UPDATE_TASK
+  DELETE_TASK
+  CHANGE_TASK_STATUS
+  ASSIGN_TASK
+  CREATE_PROJECT
+  UPDATE_PROJECT
+  ADD_MEMBER
+  REMOVE_MEMBER
+  OTHER
 }
