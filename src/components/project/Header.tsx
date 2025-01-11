@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Settings, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { AddTaskForm } from './AddTaskForm'
+import {AddTaskContainer} from '@/components/project/AddTaskForm'
 
 export default function Header({ projectId }: { projectId: string }) {
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false)
@@ -43,8 +43,7 @@ export default function Header({ projectId }: { projectId: string }) {
           </Button>
         </Link>
       </div>
-      {isAddTaskOpen && <AddTaskForm onClose={() => setIsAddTaskOpen(false)} />}
+      {isAddTaskOpen && <AddTaskContainer projectId={projectId} />}
     </header>
   )
 }
-
