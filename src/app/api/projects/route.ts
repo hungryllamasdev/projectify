@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await auth()
+        const session = await auth();
 
         if (!session || !session.user?.id) {
             return NextResponse.json(
@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
             where: {
                 members: {
                     some: {
-                        userId: session.user.id
-                    }
-                }
-            }
+                        userId: session.user.id,
+                    },
+                },
+            },
         });
 
         return NextResponse.json(userProjects, { status: 200 });
@@ -35,8 +35,7 @@ export async function GET(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
     try {
-
-        const session = await auth()
+        const session = await auth();
 
         if (!session || !session.user?.id) {
             return NextResponse.json(
@@ -47,7 +46,7 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
         const { name, description, startDate } = body;
-
+        console.log("body", body);
         if (!name || !description || !startDate) {
             return NextResponse.json(
                 { error: "name, description, startDate are required" },
@@ -57,6 +56,7 @@ export async function POST(request: NextRequest) {
 
         const newProject = await prisma.project.create({
             data: {
+                ownerID: "cm5u14es00005cx20lxd1oc58",
                 name,
                 description,
                 startDate: new Date(startDate),

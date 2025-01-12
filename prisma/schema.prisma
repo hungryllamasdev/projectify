@@ -22,6 +22,7 @@ model User {
 
   // Authjs Relations
   accounts Account[]
+  Project  Project[]
 
   @@map("users")
 }
@@ -55,6 +56,9 @@ model Project {
   startDate   DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  ownerID String
+  owner   User   @relation(fields: [ownerID], references: [id], onDelete: Cascade)
 
   members     ProjectAssignment[]
   tasks       Task[]
