@@ -1,3 +1,4 @@
+import { auth, signOut } from "@/auth"; // import your auth and signOut logic
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,10 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function UserNav() {
+export async function UserNav() {
+    // Fetch the current session from the server
+    const session = await auth();
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -20,7 +24,7 @@ export function UserNav() {
                     className="relative h-8 w-8 rounded-full"
                 >
                     <Avatar className="h-9 w-9">
-                        <AvatarImage src="/avatars/03.png" alt="@shadcn" />
+                        <AvatarImage src={session?.user?.image} alt="@shadcn" />
                         <AvatarFallback>SC</AvatarFallback>
                     </Avatar>
                 </Button>
@@ -29,10 +33,10 @@ export function UserNav() {
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                            shadcn
+                            {session?.user?.name}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                            m@example.com
+                            {session?.user?.email}
                         </p>
                     </div>
                 </DropdownMenuLabel>
@@ -53,10 +57,19 @@ export function UserNav() {
                     <DropdownMenuItem>New Team</DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    Log out
-                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                </DropdownMenuItem>
+                <form
+                    action={async () => {
+                        "use server";
+                        await signOut({ redirectTo: "/" });
+                    }}
+                >
+                    <DropdownMenuItem asChild>
+                        <button type="submit" className="w-full text-left">
+                            Log out
+                            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                        </button>
+                    </DropdownMenuItem>
+                </form>
             </DropdownMenuContent>
         </DropdownMenu>
     );
