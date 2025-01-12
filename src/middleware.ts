@@ -1,22 +1,32 @@
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
-import { auth } from "./auth";
+import NextAuth from "next-auth";
+import authConfig from "./auth.config";
 
-const protectedRoutes: string[] = [];
+const protectedRoutes = ["/dashboard", "/p"];
 
-export default async function middleware(request: NextRequest) {
-    const session = await auth()
-    const {pathname} = request.nextUrl
+const { auth } = NextAuth(authConfig);
+export default auth(async (req) => {
+    const isLoggedIn = !!req.auth;
+    const { pathname } = req.nextUrl;
+    const isAuthRoute = pathname.startsWith("/sign-"); // Matches `/sign-in` and `/sign-up`
+    const isProtectedRoute = protectedRoutes.some(
+        (route) => pathname.startsWith(route) // Matches `/dashboard`, `/user`, `/p`, and deeper paths
+    );
 
-    const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
-
-    if (isProtected && !session) {
-        return NextResponse.redirect(new URL("/sign-in", request.url));
+    if (isLoggedIn && isAuthRoute) {
+        return Response.redirect(`${process.env.URL}/dashboard`);
     }
 
-    return NextResponse.next();
-}
+    if (!isLoggedIn && isAuthRoute) {
+        return;
+    }
+
+    if (!isLoggedIn && isProtectedRoute) {
+        console.log("Protected Route");
+        return Response.redirect(`${process.env.URL}/sign-in`);
+    }
+    console.log(req.auth);
+});
 
 export const config = {
-    matcher: []
-}
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};

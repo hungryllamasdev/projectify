@@ -43,7 +43,7 @@ export default function LandingPage() {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4">
                 <Button size="lg">
-                  <Link href="/auth/signup">Get Started</Link>
+                  <Link href="/sign-in">Get Started</Link>
                 </Button>
                 <Button size="lg" variant="outline">
                   <Link href="#features">Explore Features</Link>
