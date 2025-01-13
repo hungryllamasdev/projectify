@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();
+        console.log("User ID", session?.user?.id);
 
         if (!session || !session.user?.id) {
             return NextResponse.json(

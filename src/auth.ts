@@ -11,7 +11,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt",
     },
     callbacks: {
-        async jwt({ token, account, profile }) {
+        async jwt({ token, account, profile, user }) {
             if (account && profile) {
                 // Use `upsert` to ensure the user exists in the database
                 const user = await prisma.user.upsert({
@@ -41,7 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return session;
         },
-        
+
         // authorized: async ({ auth }) => {
         //     // Logged in users are authenticated, otherwise redirect to login page
         //     return !!auth;
