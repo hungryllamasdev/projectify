@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
         const newProject = await prisma.project.create({
             data: {
-                ownerID: "cm5u14es00005cx20lxd1oc58",
+                ownerID: session.user.id,
                 name,
                 description,
                 startDate: new Date(startDate),
