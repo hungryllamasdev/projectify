@@ -1,32 +1,35 @@
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-import { prisma } from "./lib/prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import authConfig from "./auth.config";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    providers: [Google],
+    adapter: PrismaAdapter(prisma),
     session: {
-        strategy: "jwt", // Use JWT sessions
+        strategy: "jwt",
     },
     callbacks: {
-        async jwt({ token, account, profile }) {
+        async jwt({ token, account, profile, user }) {
             if (account && profile) {
                 // Use `upsert` to ensure the user exists in the database
                 const user = await prisma.user.upsert({
-                    where: { email: profile.email },
+                    where: { email: profile.email! },
                     update: {
                         name: profile.name,
-                        avatar: profile.picture, // Matching `avatar` in your schema
+                        image: profile.picture, // Matching `avatar` in your schema
                     },
                     create: {
-                        email: profile.email,
+                        email: profile.email!,
                         name: profile.name,
-                        avatar: profile.picture,
+                        image: profile.picture,
                     },
                 });
 
                 // Add the user ID to the token
                 token.id = user.id;
-                token.avatar = user.avatar;
+                token.image = user.image;
             }
             return token;
         },
@@ -34,9 +37,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // Attach the user's ID from the token to the session object
             if (token) {
                 session.user.id = token.id;
-                session.user.avatar = token.avatar;
+                session.user.image = token.image;
             }
             return session;
         },
+
+        // authorized: async ({ auth }) => {
+        //     // Logged in users are authenticated, otherwise redirect to login page
+        //     return !!auth;
+        // },
     },
+    ...authConfig,
 });

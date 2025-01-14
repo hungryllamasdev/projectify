@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { projectID, title, type, description, priority, dueDate } = body;
+        const { projectID, title, type, description, priority, dueDate, userID } = body;
 
         if (!projectID || !title || !type || !priority) {
             return NextResponse.json(
@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Create the task
         const newTask = await prisma.task.create({
             data: {
                 projectID,
@@ -31,12 +32,16 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        if (!newTask) {
-            return NextResponse.json(
-                { error: "An error occurred while creating the task" },
-                { status: 500 }
-            );
-        }
+        // Log the activity
+        await prisma.activityLog.create({
+            data: {
+                projectId: projectID,
+                userId: userID || null, 
+                type: 'CREATE_TASK',
+                taskId: newTask.id, 
+                timestamp: new Date(),
+            },
+        });
 
         return NextResponse.json(newTask, { status: 201 });
     } catch (error) {

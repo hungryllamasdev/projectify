@@ -4,8 +4,9 @@ import { auth } from "@/auth";
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await auth()
+        const session = await auth();
 
+        // Check if the user is authenticated
         if (!session || !session.user?.id) {
             return NextResponse.json(
                 { error: "Unauthorized" },
@@ -13,30 +14,47 @@ export async function GET(request: NextRequest) {
             );
         }
 
+        const userId = session.user.id;
+
         // Fetch projects where the user is a member
         const userProjects = await prisma.project.findMany({
             where: {
                 members: {
                     some: {
-                        userId: session.user.id
-                    }
-                }
-            }
+                        userId,
+                    },
+                },
+            },
+            select: {
+                id: true,
+                name: true,
+                description: true,
+                startDate: true,
+                createdAt: true,
+                updatedAt: true,
+                members: {
+                    select: {
+                        userId: true,
+                        role: true,
+                    },
+                },
+            },
         });
 
         return NextResponse.json(userProjects, { status: 200 });
     } catch (error) {
         console.error("Error fetching projects:", error);
         return NextResponse.json(
-            { error: "An error occurred while fetching projects" },
+            { error: "Internal Server Error" },
             { status: 500 }
         );
     }
 }
+
 export async function POST(request: NextRequest) {
     try {
-
-        const session = await auth()
+        const session = await auth();
+        console.log("User ID", session?.user?.id);
 
         if (!session || !session.user?.id) {
             return NextResponse.json(
@@ -47,7 +65,7 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
         const { name, description, startDate } = body;
-
+        console.log("body", body);
         if (!name || !description || !startDate) {
             return NextResponse.json(
                 { error: "name, description, startDate are required" },
@@ -57,6 +75,7 @@ export async function POST(request: NextRequest) {
 
         const newProject = await prisma.project.create({
             data: {
+                ownerID: session.user.id,
                 name,
                 description,
                 startDate: new Date(startDate),
@@ -84,4 +103,16 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+// TODO: Implement the above GET and POST in /projects/[pid]/tasks
+
+export async function DELETE(request: NextRequest) {
+    try {
+    } catch (error) {}
+}
+
+export async function PATCH(request: NextRequest) {
+    try {
+    } catch (error) {}
 }

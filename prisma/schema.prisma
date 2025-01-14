@@ -8,18 +8,45 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
 
   projectAssignments ProjectAssignment[]
-  
+  ActivityLog        ActivityLog[]
+
+  // Authjs Relations
+  accounts Account[]
+  Project  Project[]
+
   @@map("users")
-  ActivityLog ActivityLog[]
+}
+
+// Authjs Model
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
 }
 
 model Project {
@@ -30,19 +57,22 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  ownerID String
+  owner   User   @relation(fields: [ownerID], references: [id], onDelete: Cascade)
+
   members     ProjectAssignment[]
   tasks       Task[]
+  ActivityLog ActivityLog[]
 
   @@map("projects")
-  ActivityLog ActivityLog[]
 }
 
 model ProjectAssignment {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   userId    String
   projectId String
   role      ProjectRole @default(MEMBER)
-  joinedAt  DateTime @default(now())
+  joinedAt  DateTime    @default(now())
 
   user    User    @relation(fields: [userId], references: [id])
   project Project @relation(fields: [projectId], references: [id])
@@ -96,15 +126,15 @@ enum TaskPriority {
 }
 
 model ActivityLog {
-  id          String      @id @default(cuid())
-  projectId   String
-  userId      String?
-  type        ActivityType
-  taskId      String?
-  timestamp   DateTime    @default(now())
+  id        String       @id @default(cuid())
+  projectId String
+  userId    String?
+  type      ActivityType
+  taskId    String?
+  timestamp DateTime     @default(now())
 
-  project     Project     @relation(fields: [projectId], references: [id])
-  user        User?       @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id])
 
   @@index([projectId])
   @@index([userId])
