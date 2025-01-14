@@ -1,13 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextResponse, NextRequest } from "next/server";
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
+
+// DELETE: Delete a project by ID
+export async function DELETE(request: NextRequest, { params }: { params: { pid: string } }) {
+    const { pid } = params;
+
+    // Authenticate user
+    const session = await auth();
+    if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const project = await prisma.project.findUnique({
+            where: { id: pid },
+        });
+
+        if (!project) {
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        if (project.ownerID !== session.user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        await prisma.project.delete({ where: { id: pid } });
+
+        return NextResponse.json({ message: 'Project deleted successfully' }, { status: 200 });
+    } catch (error) {
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}   
 
 export async function PATCH(
-    req: Request,
+    req: NextRequest,
     { params }: { params: { pid: string } }
 ) {
     const { pid } = params;
 
     try {
+      
+        // Authenticate user
+        const session = await auth();
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         const updates = await req.json();
 
         const allowedFields = ["name", "description", "startDate"];
@@ -37,42 +75,43 @@ export async function PATCH(
     }
 }
 
-export async function DELETE(
-    req: Request,
-    { params }: { params: { pid: string } }
-) {
+// GET: Fetch project details
+export async function GET(request: NextRequest, { params }: { params: { pid: string } }) {
     const { pid } = params;
 
+    // Authenticate user
+    const session = await auth();
+    if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
+
+        const userId = session.user.id;
+
         const project = await prisma.project.findUnique({
             where: { id: pid },
+            include: {
+                owner: true,
+                members: { include: { user: true } },
+                tasks: true,
+            },
         });
 
         if (!project) {
-            return NextResponse.json(
-                { error: "Project not found." },
-                { status: 404 }
-            );
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
         }
 
-        await prisma.project.delete({
-            where: { id: pid },
-        });
-
-        return NextResponse.json(
-            { message: "Project deleted successfully." },
-            { status: 200 }
+        const isMember = project.members.some(
+            (member) => member.userId === userId
         );
+
+        if (!isMember && project.ownerID !== session.user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        return NextResponse.json(project, { status: 200 });
     } catch (error) {
-        console.error("Error deleting project:", error);
-        return NextResponse.json(
-            { error: "Internal server error." },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
-
-export async function GET(request: NextRequest) {
-    try {
-    } catch (error) {}
 }
