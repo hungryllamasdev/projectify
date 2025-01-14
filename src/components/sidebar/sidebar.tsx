@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, Home, Inbox, Brain, Calendar, ListTodo, Settings, Users, Plus, ChevronDown, FolderKanban, Timer, BarChart2, ChevronRight } from 'lucide-react'
+import { Search, Home, Inbox, Brain, Calendar, ListTodo, Settings, Users, Plus, ChevronDown, FolderKanban, Timer, BarChart2, ChevronRight, UserPlus } from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -23,26 +23,27 @@ interface NavItem {
   href: string
 }
 
-interface WorkspaceItem {
+interface ProjectItem {
   id: string
   name: string
-  projects: { id: string; name: string }[]
+  pinned: boolean
 }
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = React.useState(true)
-  const [expandedSections, setExpandedSections] = React.useState<string[]>(['workspace-1'])
+  const [expandedSections, setExpandedSections] = React.useState<string[]>(['Project-1'])
   const router = useRouter()
 
-  const workspaces: WorkspaceItem[] = [
+  const Projects: ProjectItem[] = [
     {
-      id: 'workspace-1',
-      name: 'Main Workspace',
-      projects: [
-        { id: 'p1', name: 'Website Redesign' },
-        { id: 'p2', name: 'Mobile App' },
-        { id: 'p3', name: 'Marketing Campaign' },
-      ],
+      id: 'Project-1',
+      name: 'Main Project',
+      pinned: true,
+    },
+    {
+      id: 'Project-2',
+      name: 'Secondary Project',
+      pinned: false,
     },
   ]
 
@@ -82,7 +83,7 @@ export function Sidebar() {
   return (
     <TooltipProvider>
       <div className={cn(
-        "relative h-screen bg-sidebar border-r transition-all duration-300 ease-in-out",
+        "relative h-screen bg-sidebar border-r transition-all duration-300 ease-in-out flex flex-col",
         isCollapsed ? "w-16" : "w-64"
       )}>
         {/* Header with Profile */}
@@ -95,7 +96,7 @@ export function Sidebar() {
             )}
             asChild
           >
-            <Link href="/profile">
+            <Link href="/dashboard">
               <Avatar className="h-5 w-5 mr-2">
                 <AvatarImage src="/placeholder-avatar.jpg" />
                 <AvatarFallback>P</AvatarFallback>
@@ -110,116 +111,41 @@ export function Sidebar() {
           </Button>
         </div>
 
-        {/* Search */}
-        {!isCollapsed && (
-          <div className="p-3">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search"
-                className="pl-8 bg-muted/50 border-none h-8"
-              />
-            </div>
-          </div>
-        )}
-
         {/* Main Navigation */}
-        <ScrollArea className="flex-1 px-3">
+        <ScrollArea className="flex-grow px-3">
           <div className="space-y-1 py-2">
             <NavItem icon={Home} label="Home" href="/dashboard" />
-            <NavItem icon={Inbox} label="Inbox" href="/inbox" />
-            <NavItem icon={Calendar} label="Calendar" href="/calendar" />
-            <NavItem icon={Timer} label="Time Tracking" href="/time" />
-            <NavItem icon={BarChart2} label="Analytics" href="/analytics" />
           </div>
 
-          {/* Workspaces */}
+          {/* Projects */}
           <div className="mt-4">
             {!isCollapsed && (
               <div className="flex items-center justify-between px-2 mb-2">
-                <span className="text-xs font-medium text-muted-foreground">WORKSPACES</span>
+                <Link href="/p" className="text-xs font-medium text-muted-foreground hover:text-primary">Pinned Projects</Link>
                 <Button variant="ghost" size="icon" className="h-4 w-4">
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
             )}
-            {workspaces.map((workspace) => (
-              <div key={workspace.id} className="mb-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={cn(
-                        "w-full justify-between px-2 py-1.5 h-8",
-                        isCollapsed && "justify-center px-0"
-                      )}
-                      onClick={() => !isCollapsed && toggleSection(workspace.id)}
-                    >
-                      <FolderKanban className="h-4 w-4" />
-                      {!isCollapsed && (
-                        <>
-                          <span className="text-sm">{workspace.name}</span>
-                          <ChevronDown className={cn(
-                            "h-4 w-4 transition-transform",
-                            expandedSections.includes(workspace.id) ? "rotate-180" : ""
-                          )} />
-                        </>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  {isCollapsed && (
-                    <TooltipContent side="right">
-                      {workspace.name}
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-                {!isCollapsed && expandedSections.includes(workspace.id) && (
-                  <div className="ml-3 mt-1 space-y-1">
-                    {workspace.projects.map((project) => (
-                      <Button
-                        key={project.id}
-                        variant="ghost"
-                        className="w-full justify-start px-2 py-1.5 h-7 text-sm text-muted-foreground hover:text-primary"
-                        asChild
-                      >
-                        <Link href={`/project/${project.id}`}>
-                          <FolderKanban className="mr-2 h-3 w-3" />
-                          {project.name}
-                        </Link>
-                      </Button>
-                    ))}
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start px-2 py-1.5 h-7 text-sm text-muted-foreground hover:text-primary"
-                      onClick={() => router.push('/new-project')}
-                    >
-                      <Plus className="mr-2 h-3 w-3" />
-                      New Project
-                    </Button>
-                  </div>
-                )}
-              </div>
+            {Projects.filter(project => project.pinned).map((project) => (
+              <ProjectSection key={project.id} project={project} isCollapsed={isCollapsed} />
             ))}
-          </div>
-
-          {/* Tools Section */}
-          <div className="mt-4">
             {!isCollapsed && (
-              <div className="px-2 mb-2">
-                <span className="text-xs font-medium text-muted-foreground">TOOLS</span>
+              <div className="px-2 mt-4 mb-2">
+                <span className="text-xs font-medium text-muted-foreground">Projects</span>
               </div>
             )}
-            <div className="space-y-1">
-              <NavItem icon={Brain} label="AI Assistant" href="/ai" />
-              <NavItem icon={ListTodo} label="Task Templates" href="/templates" />
-              <NavItem icon={Users} label="Team" href="/team" />
-            </div>
+            {Projects.filter(project => !project.pinned).map((project) => (
+              <ProjectSection key={project.id} project={project} isCollapsed={isCollapsed} />
+            ))}
           </div>
         </ScrollArea>
 
         {/* Footer */}
-        <div className="p-3 border-t mt-auto">
-          <NavItem icon={Settings} label="Settings" href="/settings" />
+        <div className="mt-auto">
+          <div className="p-3 border-t">
+            <NavItem icon={Settings} label="Settings" href="/settings" />
+          </div>
         </div>
 
         {/* Collapse Toggle Button */}
@@ -236,6 +162,71 @@ export function Sidebar() {
         </Button>
       </div>
     </TooltipProvider>
+  )
+}
+
+function ProjectSection({ project, isCollapsed }: { project: ProjectItem; isCollapsed: boolean }) {
+  const [isExpanded, setIsExpanded] = React.useState(false)
+
+  return (
+    <div key={project.id} className="mb-2">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-between px-2 py-1.5 h-8",
+              isCollapsed && "justify-center px-0"
+            )}
+            onClick={() => !isCollapsed && setIsExpanded(!isExpanded)}
+          >
+            <FolderKanban className="h-4 w-4" />
+            {!isCollapsed && (
+              <>
+                <span className="text-sm">{project.name}</span>
+                <ChevronDown className={cn(
+                  "h-4 w-4 transition-transform",
+                  isExpanded ? "rotate-180" : ""
+                )} />
+              </>
+            )}
+          </Button>
+        </TooltipTrigger>
+        {isCollapsed && (
+          <TooltipContent side="right">
+            {project.name}
+          </TooltipContent>
+        )}
+      </Tooltip>
+      {!isCollapsed && isExpanded && (
+        <div className="ml-3 mt-1 space-y-1">
+          <Button
+            variant="ghost"
+            className="w-full justify-start px-2 py-1.5 h-7 text-sm text-muted-foreground hover:text-primary"
+            onClick={() => {/* Add task logic */}}
+          >
+            <Plus className="mr-2 h-3 w-3" />
+            Add Task
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start px-2 py-1.5 h-7 text-sm text-muted-foreground hover:text-primary"
+            onClick={() => {/* View members logic */}}
+          >
+            <Users className="mr-2 h-3 w-3" />
+            View Members
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start px-2 py-1.5 h-7 text-sm text-muted-foreground hover:text-primary"
+            onClick={() => {/* Invite members logic */}}
+          >
+            <UserPlus className="mr-2 h-3 w-3" />
+            Invite Members
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }
 
