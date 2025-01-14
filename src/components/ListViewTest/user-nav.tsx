@@ -15,6 +15,7 @@ import {
 export async function UserNav() {
     // Fetch the current session from the server
     const session = await auth();
+    console.log(session?.user?.image)
 
     return (
         <DropdownMenu>
@@ -24,7 +25,7 @@ export async function UserNav() {
                     className="relative h-8 w-8 rounded-full"
                 >
                     <Avatar className="h-9 w-9">
-                        <AvatarImage src={session?.user?.image} alt="@shadcn" />
+                        <AvatarImage src={session?.user?.image!} alt="@shadcn" />
                         <AvatarFallback>SC</AvatarFallback>
                     </Avatar>
                 </Button>
