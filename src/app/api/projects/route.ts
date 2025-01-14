@@ -86,3 +86,15 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
+// TODO: Implement the above GET and POST in /projects/[pid]/tasks
+
+export async function DELETE(request: NextRequest) {
+    try {
+    } catch (error) {}
+}
+
+export async function PATCH(request: NextRequest) {
+    try {
+    } catch (error) {}
+}
