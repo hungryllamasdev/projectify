@@ -4,6 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, Home, Inbox, Brain, Calendar, ListTodo, Settings, Users, Plus, ChevronDown, FolderKanban, Timer, BarChart2, ChevronRight, UserPlus } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -29,23 +30,25 @@ interface ProjectItem {
   pinned: boolean
 }
 
+// Separate API function
+const getProjects = async (): Promise<ProjectItem[]> => {
+  const response = await fetch('/api/projects')
+  if (!response.ok) {
+    throw new Error('Network response was not ok')
+  }
+  return response.json()
+}
+
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = React.useState(true)
-  const [expandedSections, setExpandedSections] = React.useState<string[]>(['Project-1'])
+  const [expandedSections, setExpandedSections] = React.useState<string[]>([])
   const router = useRouter()
-
-  const Projects: ProjectItem[] = [
-    {
-      id: 'Project-1',
-      name: 'Main Project',
-      pinned: true,
-    },
-    {
-      id: 'Project-2',
-      name: 'Secondary Project',
-      pinned: false,
-    },
-  ]
+  
+  // Use React Query hook with the separate API function
+  const { data: projects, isLoading, isError } = useQuery({
+    queryKey: ['projects'],
+    queryFn: getProjects
+  })
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev =>
@@ -121,22 +124,22 @@ export function Sidebar() {
           <div className="mt-4">
             {!isCollapsed && (
               <div className="flex items-center justify-between px-2 mb-2">
-                <Link href="/p" className="text-xs font-medium text-muted-foreground hover:text-primary">Pinned Projects</Link>
+                <Link href="/p" className="text-xs font-medium text-muted-foreground hover:text-primary">Projects</Link>
                 <Button variant="ghost" size="icon" className="h-4 w-4">
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
             )}
-            {Projects.filter(project => project.pinned).map((project) => (
-              <ProjectSection key={project.id} project={project} isCollapsed={isCollapsed} />
-            ))}
-            {!isCollapsed && (
-              <div className="px-2 mt-4 mb-2">
-                <span className="text-xs font-medium text-muted-foreground">Projects</span>
-              </div>
-            )}
-            {Projects.filter(project => !project.pinned).map((project) => (
-              <ProjectSection key={project.id} project={project} isCollapsed={isCollapsed} />
+            {isLoading && <p className="text-muted-foreground text-sm px-2">Loading...</p>}
+            {isError && <p className="text-error text-sm px-2">Failed to load projects</p>}
+            {projects?.map((project: ProjectItem) => (
+              <ProjectSection 
+                key={project.id} 
+                project={project} 
+                isCollapsed={isCollapsed}
+                isExpanded={expandedSections.includes(project.id)}
+                onToggle={() => toggleSection(project.id)}
+              />
             ))}
           </div>
         </ScrollArea>
@@ -165,9 +168,17 @@ export function Sidebar() {
   )
 }
 
-function ProjectSection({ project, isCollapsed }: { project: ProjectItem; isCollapsed: boolean }) {
-  const [isExpanded, setIsExpanded] = React.useState(false)
-
+function ProjectSection({ 
+  project, 
+  isCollapsed, 
+  isExpanded, 
+  onToggle 
+}: { 
+  project: ProjectItem; 
+  isCollapsed: boolean; 
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
   return (
     <div key={project.id} className="mb-2">
       <Tooltip>
@@ -178,7 +189,7 @@ function ProjectSection({ project, isCollapsed }: { project: ProjectItem; isColl
               "w-full justify-between px-2 py-1.5 h-8",
               isCollapsed && "justify-center px-0"
             )}
-            onClick={() => !isCollapsed && setIsExpanded(!isExpanded)}
+            onClick={() => !isCollapsed && onToggle()}
           >
             <FolderKanban className="h-4 w-4" />
             {!isCollapsed && (
