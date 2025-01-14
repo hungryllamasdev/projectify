@@ -15,7 +15,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { pid: 
     try {
         const project = await prisma.project.findUnique({
             where: { id: pid },
-            include: { members: true },
         });
 
         if (!project) {
@@ -32,44 +31,47 @@ export async function DELETE(request: NextRequest, { params }: { params: { pid: 
     } catch (error) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
-}
+}   
 
-// PATCH: Update project details
-export async function PATCH(request: NextRequest, { params }: { params: { pid: string } }) {
+export async function PATCH(
+    req: NextRequest,
+    { params }: { params: { pid: string } }
+) {
     const { pid } = params;
-    const body = await request.json();
-
-    // Authenticate user
-    const session = await auth();
-    if (!session?.user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     try {
-        const project = await prisma.project.findUnique({
-            where: { id: pid },
-        });
-
-        if (!project) {
-            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      
+        // Authenticate user
+        const session = await auth();
+        if (!session?.user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+        const updates = await req.json();
 
-        if (project.ownerID !== session.user.id) {
-            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        const allowedFields = ["name", "description", "startDate"];
+        const invalidFields = Object.keys(updates).filter(
+            (field) => !allowedFields.includes(field)
+        );
+
+        if (invalidFields.length > 0) {
+            return NextResponse.json(
+                { error: `Invalid fields: ${invalidFields.join(", ")}` },
+                { status: 400 }
+            );
         }
 
         const updatedProject = await prisma.project.update({
             where: { id: pid },
-            data: {
-                name: body.name,
-                description: body.description,
-                startDate: body.startDate,
-            },
+            data: updates,
         });
 
         return NextResponse.json(updatedProject, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error("Error updating project:", error);
+        return NextResponse.json(
+            { error: "Internal server error." },
+            { status: 500 }
+        );
     }
 }
 

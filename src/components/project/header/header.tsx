@@ -1,8 +1,6 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ActivityLog from "@/components/project/ActivityLog";
-import { ProjectHeader } from "@/components/project/header/project-header";
+import { ProjectHeader, TeamMember } from "./project-header";
 
 const sampleTeamMembers: TeamMember[] = [
     {
@@ -37,14 +35,7 @@ const sampleTeamMembers: TeamMember[] = [
     },
 ];
 
-export default function ProjectLayout({
-    children,
-    params,
-}: {
-    children: React.ReactNode;
-    params: { pid: string };
-}) {
-    const projectId = "2a";
+export default function DashboardPage() {
     const handleProjectNameChange = (newName: string) => {
         console.log("Project name changed:", newName);
         // Here you would typically update the project name in your backend
@@ -56,32 +47,17 @@ export default function ProjectLayout({
     };
 
     return (
-        <>
+        <div className="min-h-screen bg-gray-50">
             <ProjectHeader
                 initialProjectName="My Awesome Project"
                 teamMembers={sampleTeamMembers}
                 onProjectNameChange={handleProjectNameChange}
                 onShare={handleShare}
             />
-            <div className="container mx-auto p-6">
-                <Tabs className="space-y-4">
-                    <TabsList>
-                        <TabsTrigger value="overview">Overview</TabsTrigger>
-                        <TabsTrigger value="kanban">Kanban</TabsTrigger>
-                        <TabsTrigger value="list">List</TabsTrigger>
-                        <TabsTrigger value="calendar">Calendar</TabsTrigger>
-                        <TabsTrigger value="gantt">Gantt</TabsTrigger>
-                        <TabsTrigger value="documentation">
-                            Documentation
-                        </TabsTrigger>
-                        <TabsTrigger value="notes">Notes</TabsTrigger>
-                    </TabsList>
-                    {children}
-                </Tabs>
-
-                {/* Display activity log for the project */}
-                <ActivityLog projectId={projectId} />
-            </div>
-        </>
+            <main className="p-4">
+                {/* Your dashboard content goes here */}
+                <p>Dashboard content</p>
+            </main>
+        </div>
     );
 }
