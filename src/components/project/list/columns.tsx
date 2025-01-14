@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { labels, priorities, statuses } from "./data/data";
-import { Task } from "@/components/ListViewTest/data/schema";
+import { Task } from "@/components/project/list/data/schema";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { DataTableColumnHeader } from "./data-table-column-header";
 

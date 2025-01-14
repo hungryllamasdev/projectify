@@ -5,7 +5,7 @@ import { TaskList } from "@/components/dashboard/task-list";
 import { Metrics } from "@/components/dashboard/metrics";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { auth } from "@/auth";
-import { UserNav } from "@/components/ListViewTest/user-nav";
+import { UserNav } from "@/components/nav/user-nav";
 
 export const metadata: Metadata = {
     title: "Dashboard | Projectify",
