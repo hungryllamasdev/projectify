@@ -1,16 +1,115 @@
-import { NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 
-export async function DELETE(request: NextRequest) {
+// DELETE: Delete a project by ID
+export async function DELETE(request: NextRequest, { params }: { params: { pid: string } }) {
+    const { pid } = params;
+
+    // Authenticate user
+    const session = await auth();
+    if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-    } catch (error) {}
+        const project = await prisma.project.findUnique({
+            where: { id: pid },
+            include: { members: true },
+        });
+
+        if (!project) {
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        if (project.ownerID !== session.user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        await prisma.project.delete({ where: { id: pid } });
+
+        return NextResponse.json({ message: 'Project deleted successfully' }, { status: 200 });
+    } catch (error) {
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
 }
 
-export async function PATCH(request: NextRequest) {
+// PATCH: Update project details
+export async function PATCH(request: NextRequest, { params }: { params: { pid: string } }) {
+    const { pid } = params;
+    const body = await request.json();
+
+    // Authenticate user
+    const session = await auth();
+    if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-    } catch (error) {}
+        const project = await prisma.project.findUnique({
+            where: { id: pid },
+        });
+
+        if (!project) {
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        if (project.ownerID !== session.user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        const updatedProject = await prisma.project.update({
+            where: { id: pid },
+            data: {
+                name: body.name,
+                description: body.description,
+                startDate: body.startDate,
+            },
+        });
+
+        return NextResponse.json(updatedProject, { status: 200 });
+    } catch (error) {
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
 }
 
-export async function GET(request: NextRequest) {
+// GET: Fetch project details
+export async function GET(request: NextRequest, { params }: { params: { pid: string } }) {
+    const { pid } = params;
+
+    // Authenticate user
+    const session = await auth();
+    if (!session?.user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     try {
-    } catch (error) {}
+
+        const userId = session.user.id;
+
+        const project = await prisma.project.findUnique({
+            where: { id: pid },
+            include: {
+                owner: true,
+                members: { include: { user: true } },
+                tasks: true,
+            },
+        });
+
+        if (!project) {
+            return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        const isMember = project.members.some(
+            (member) => member.userId === userId
+        );
+
+        if (!isMember && project.ownerID !== session.user.id) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        return NextResponse.json(project, { status: 200 });
+    } catch (error) {
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
 }
