@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
     Card,
     CardContent,
@@ -12,123 +13,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, Calendar, Clock } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useForm } from "@tanstack/react-form";
 import { Label } from "@/components/ui/label";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createProject } from "@/utils/api";
-import { ProjectCard } from "@/components/project-dashboard/project-card";
-
-// Types
-interface TeamMember {
-    name: string;
-    avatar: string;
-}
-
-interface Project {
-    id: string;
-    name: string;
-    description: string;
-    status: "Active" | "Completed" | "On Hold";
-    progress: number;
-    dueDate: string;
-    team: TeamMember[];
-}
-
-// Dummy Data
-const projects: Project[] = [
-    {
-        id: "1",
-        name: "Website Redesign",
-        description: "Overhaul of company website for better UX",
-        status: "Active",
-        progress: 75,
-        dueDate: "2023-12-31",
-        team: [
-            {
-                name: "Alice Johnson",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-            {
-                name: "Bob Smith",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-        ],
-    },
-    {
-        id: "2",
-        name: "Mobile App Development",
-        description: "Creating a new mobile app for client",
-        status: "Active",
-        progress: 40,
-        dueDate: "2024-03-15",
-        team: [
-            {
-                name: "Charlie Brown",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-            {
-                name: "Diana Ross",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-        ],
-    },
-    {
-        id: "3",
-        name: "Database Migration",
-        description: "Migrating data to new cloud infrastructure",
-        status: "On Hold",
-        progress: 10,
-        dueDate: "2024-02-28",
-        team: [
-            {
-                name: "Eve Williams",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-            {
-                name: "Frank Ocean",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-        ],
-    },
-    {
-        id: "4",
-        name: "AI Integration",
-        description: "Implementing AI-driven features across products",
-        status: "Active",
-        progress: 60,
-        dueDate: "2024-06-30",
-        team: [
-            {
-                name: "Grace Hopper",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-            { name: "Hank Pym", avatar: "/placeholder.svg?height=32&width=32" },
-        ],
-    },
-    {
-        id: "5",
-        name: "Security Audit",
-        description: "Comprehensive security review of all systems",
-        status: "Completed",
-        progress: 100,
-        dueDate: "2023-11-30",
-        team: [
-            {
-                name: "Irene Adler",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-            {
-                name: "Jack Ryan",
-                avatar: "/placeholder.svg?height=32&width=32",
-            },
-        ],
-    },
-];
 
 function NewProjectPage() {
     const [serverError, setServerError] = useState<string | null>(null);
@@ -346,15 +239,61 @@ function NewProjectCard() {
                     </CardContent>
                 </Card>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent title="New Project" className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <NewProjectPage />
             </DialogContent>
         </Dialog>
     );
 }
 
+function ProjectCard({ project }) {
+    return (
+        <Link href={`/p/${project.id}`} passHref>
+            <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                <CardHeader>
+                    <CardTitle className="text-xl font-bold">{project.name}</CardTitle>
+                    <CardDescription className="text-sm text-gray-500 line-clamp-2">{project.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>Start: {new Date(project.startDate).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                        <Clock className="w-4 h-4" />
+                        <span>Updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <div className="flex -space-x-2 overflow-hidden">
+                        {project.members.map((member, index) => (
+                            <Avatar key={index} className="inline-block border-2 border-background">
+                                <AvatarFallback>{member.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                        ))}
+                    </div>
+                </CardFooter>
+            </Card>
+        </Link>
+    );
+}
+
 // Main Dashboard Component
 export default function ProjectDashboard() {
+    const { data: projects, isLoading, error } = useQuery({
+        queryKey: ['projects'],
+        queryFn: async () => {
+            const response = await fetch('/api/projects');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        },
+    });
+
+    if (isLoading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    if (error) return <div className="text-red-500 text-center">An error occurred: {error.message}</div>;
+
     return (
         <div className="container mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6">Project Dashboard</h1>
@@ -367,3 +306,4 @@ export default function ProjectDashboard() {
         </div>
     );
 }
+
