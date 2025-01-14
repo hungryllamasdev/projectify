@@ -183,25 +183,29 @@ function ProjectSection({
     <div key={project.id} className="mb-2">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-between px-2 py-1.5 h-8",
-              isCollapsed && "justify-center px-0"
-            )}
-            onClick={() => !isCollapsed && onToggle()}
-          >
-            <FolderKanban className="h-4 w-4" />
-            {!isCollapsed && (
-              <>
-                <span className="text-sm">{project.name}</span>
-                <ChevronDown className={cn(
-                  "h-4 w-4 transition-transform",
-                  isExpanded ? "rotate-180" : ""
-                )} />
-              </>
-            )}
-          </Button>
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              className={cn(
+                "flex-grow justify-between px-2 py-1.5 h-8",
+                isCollapsed && "justify-center px-0"
+              )}
+              onClick={() => !isCollapsed && onToggle()}
+            >
+              <FolderKanban className="h-4 w-4" />
+              {!isCollapsed && (
+                <>
+                  <Link href={`/p/${project.id}`} className="flex-grow text-left">
+                    <span className="text-sm">{project.name}</span>
+                  </Link>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 transition-transform",
+                    isExpanded ? "rotate-180" : ""
+                  )} />
+                </>
+              )}
+            </Button>
+          </div>
         </TooltipTrigger>
         {isCollapsed && (
           <TooltipContent side="right">
