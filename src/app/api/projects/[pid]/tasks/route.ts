@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
 export async function GET(request: NextRequest, { params }: { params: { pid: string } }) {
-    const { pid } = params;
+    const { pid } = await params;
 
     try {
         const session = await auth();
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest, { params }: { params: { pid: str
 
 // POST: Create a new task for a project
 export async function POST(request: NextRequest, { params }: { params: { pid: string } }) {
-    const { pid } = params;
+    const { pid } = await params;
 
     try {
         const session = await auth();
