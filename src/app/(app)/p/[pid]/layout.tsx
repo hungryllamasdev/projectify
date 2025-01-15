@@ -12,6 +12,7 @@ import { CustomKanban } from "@/components/project/Kanban";
 import Calendar from "@/components/project/Calendar";
 import List from "@/components/project/List";
 import GanttChart from "@/components/project/GanttChart";
+import { TeamMembers } from "@/components/project/header/team-members";
 
 // Types
 interface TeamMember {
@@ -22,6 +23,13 @@ interface TeamMember {
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
+}
+
+//Fetch project data
+const fetchProjectData = async (projectId: string) => {
+  const response = await fetch(`/api/projects/${projectId}`);
+  if (!response.ok) throw new Error("Failed to fetch project data");
+  return response.json();
 }
 
 // Fetch function for assignable users
@@ -37,40 +45,61 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
   const params = useParams();
   const pid = params.pid as string;
 
-  const [projectName, setProjectName] = useState("My Awesome Project");
+  const {
+    data: projectData = [],
+    isLoading: isProjectLoading,
+    isError: isProjectError
+  } = useQuery({
+    queryKey: ["projectData", pid],
+    queryFn: () => fetchProjectData(pid),
+    enabled: !!pid,
+    staleTime: 5 * 60 * 1000, //Cache for 5 minutes
+  });
 
-  // Fetch assignable users with React Query
-  const { data: teamMembers = [], isLoading, isError } = useQuery({
+  const {
+    data: assignableUsers = [],
+    isLoading: isUsersLoading,
+    isError: isUsersError
+  } = useQuery({
     queryKey: ["assignableUsers", pid],
     queryFn: () => fetchAssignableUsers(pid),
     enabled: !!pid,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  const handleProjectNameChange = (newName: string) => {
-    setProjectName(newName);
-    console.log("Project name changed:", newName);
-  };
-
   const handleShare = () => {
     console.log("Share button clicked");
   };
 
-  if (isLoading) {
-    return <div>Loading project data...</div>;
+  // Show loading state if either query is loading
+  if (isProjectLoading || isUsersLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading project data...</div>
+      </div>
+    );
   }
 
-  if (isError) {
-    return <div>Error fetching project data.</div>;
+  // Show error state if either query has errored
+  if (isProjectError || isUsersError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-red-500">Error loading project data.</div>
+      </div>
+    );
+  }
+
+  // Ensure projectData exists before rendering
+  if (!projectData) {
+    return null;
   }
 
   return (
     <>
       {/* Pass teamMembers to ProjectHeader */}
       <ProjectHeader
-        initialProjectName={projectName}
-        teamMembers={teamMembers}
-        onProjectNameChange={handleProjectNameChange}
+        initialProjectName={projectData.name}
+        teamMembers={assignableUsers}
         onShare={handleShare}
       />
       <div className="container mx-auto p-6">
@@ -87,23 +116,23 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                 <TabsTrigger value="notes">Notes</TabsTrigger>
               </TabsList>
               {/* Pass teamMembers to AddTaskButton (if required for assigning tasks) */}
-              <AddTaskButton teamMembers={teamMembers} />
+              <AddTaskButton teamMembers={assignableUsers} />
             </div>
             <TabsContent value="overview">
               <h2 className="text-2xl font-bold mb-6">Project Overview</h2>
-              <Dashboard projectId={pid} />
+              <Dashboard  data={projectData} />
             </TabsContent>
             <TabsContent value="kanban">
-              <CustomKanban />
+              <CustomKanban data={projectData.tasks}/>
             </TabsContent>
             <TabsContent value="list">
-              <List />
+              <List data={projectData.tasks}/>
             </TabsContent>
             <TabsContent value="calendar">
-              <Calendar />
+              <Calendar data={projectData.tasks}/>
             </TabsContent>
             <TabsContent value="gantt">
-              <GanttChart />
+              <GanttChart data={projectData.tasks}/>
             </TabsContent>
             <TabsContent value="documentation">
               <h2 className="text-2xl font-bold mb-6">Documentation</h2>
