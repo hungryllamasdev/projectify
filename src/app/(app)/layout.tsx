@@ -3,7 +3,6 @@ import "./globals.css";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import QueryProvider from "@/components/providers/react-query-provider";
-// import Providers from "./providers";
 
 export const metadata: Metadata = {
     title: "Project-ify",
