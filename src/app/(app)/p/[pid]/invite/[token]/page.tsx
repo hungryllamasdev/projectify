@@ -31,7 +31,8 @@ export default async function InvitationPage({
 }: {
     params: { token: string };
 }) {
-    const invitationData = await getInvitationData(params.token);
+    const token = (await params).token;
+    const invitationData = await getInvitationData(token);
 
     if (!invitationData) {
         notFound();
