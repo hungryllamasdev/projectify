@@ -6,8 +6,9 @@ export async function GET(
     { params }: { params: { pid: string } }
 ) {
     try {
-        const { pid } = params;
+        const { pid } = await params;
 
+        // Validate Project ID
         if (!pid) {
             return NextResponse.json(
                 { error: "Project ID is required" },
@@ -15,23 +16,29 @@ export async function GET(
             );
         }
 
+        // Fetch assignable users
         const assignableUsers = await prisma.projectAssignment.findMany({
             where: { projectId: pid },
             include: { user: true },
         });
 
-        return NextResponse.json(
-            assignableUsers.map(({ user }) => ({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                avatar: user.avatar,
-            }))
-        );
+        // Map users with required fields
+        const users = assignableUsers.map(({ user }) => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            avatar: user.image, // Use 'image' as per your schema
+        }));
+        
+        return NextResponse.json(users);
     } catch (error) {
-        console.error("Error fetching assignable users:", error);
+        // Narrow the type of error
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+
+        console.error("Error fetching assignable users:", errorMessage);
+
         return NextResponse.json(
-            { error: "An error occurred while fetching assignable users" },
+            { error: errorMessage },
             { status: 500 }
         );
     }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ActivityLog from "@/components/project/ActivityLog";
 import { ProjectHeader } from "@/components/project/header/project-header";
@@ -12,6 +13,7 @@ import Calendar from "@/components/project/Calendar";
 import List from "@/components/project/List";
 import GanttChart from "@/components/project/GanttChart";
 
+// Types
 interface TeamMember {
   id: string;
   name: string;
@@ -22,19 +24,28 @@ interface ProjectLayoutProps {
   children: React.ReactNode;
 }
 
+// Fetch function for assignable users
+const fetchAssignableUsers = async (projectId: string): Promise<TeamMember[]> => {
+  const response = await fetch(`/api/projects/${projectId}/assignable-users`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch assignable users");
+  }
+  return response.json();
+};
+
 export default function ProjectLayout({ children }: ProjectLayoutProps) {
   const params = useParams();
   const pid = params.pid as string;
 
   const [projectName, setProjectName] = useState("My Awesome Project");
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
-    { id: "1", name: "Alice Johnson", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "2", name: "Bob Smith", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "3", name: "Charlie Brown", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "4", name: "Diana Ross", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "5", name: "Edward Norton", avatar: "/placeholder.svg?height=32&width=32" },
-    { id: "6", name: "Fiona Apple", avatar: "/placeholder.svg?height=32&width=32" },
-  ]);
+
+  // Fetch assignable users with React Query
+  const { data: teamMembers = [], isLoading, isError } = useQuery({
+    queryKey: ["assignableUsers", pid],
+    queryFn: () => fetchAssignableUsers(pid),
+    enabled: !!pid,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
 
   const handleProjectNameChange = (newName: string) => {
     setProjectName(newName);
@@ -45,8 +56,17 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
     console.log("Share button clicked");
   };
 
+  if (isLoading) {
+    return <div>Loading project data...</div>;
+  }
+
+  if (isError) {
+    return <div>Error fetching project data.</div>;
+  }
+
   return (
     <>
+      {/* Pass teamMembers to ProjectHeader */}
       <ProjectHeader
         initialProjectName={projectName}
         teamMembers={teamMembers}
@@ -66,7 +86,8 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                 <TabsTrigger value="documentation">Documentation</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>
               </TabsList>
-              <AddTaskButton />
+              {/* Pass teamMembers to AddTaskButton (if required for assigning tasks) */}
+              <AddTaskButton teamMembers={teamMembers} />
             </div>
             <TabsContent value="overview">
               <h2 className="text-2xl font-bold mb-6">Project Overview</h2>
@@ -99,4 +120,3 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
     </>
   );
 }
-
