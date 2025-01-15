@@ -26,6 +26,17 @@ type TaskFormValues = {
   description: string
   priority: 'LOW' | 'MEDIUM' | 'HIGH'
   dueDate: string
+  assignedTo: string
+}
+
+interface TeamMember {
+  id: string
+  name: string
+  avatar: string
+}
+
+interface AddTaskButtonProps {
+  teamMembers: TeamMember[]
 }
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
@@ -57,7 +68,7 @@ const createTask = async (pid: string, task: TaskFormValues): Promise<any> => {
   return response.json()
 }
 
-export function AddTaskButton() {
+export function AddTaskButton({ teamMembers }: AddTaskButtonProps) {
   const [open, setOpen] = useState(false)
   const params = useParams()
   const pid = params.pid as string
@@ -90,6 +101,7 @@ export function AddTaskButton() {
       description: '',
       priority: 'MEDIUM',
       dueDate: '',
+      assignedTo: '',
     },
     onSubmit: async ({ value }) => {
       mutation.mutate(value)
@@ -208,7 +220,26 @@ export function AddTaskButton() {
           </div>
 
           <div>
-            <form.Field name="dueDate">
+            <form.Field 
+            name="dueDate"
+            validators={{
+              onChange: ({ value }) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Remove time portion for comparison
+                const selectedDate = new Date(value);
+          
+                if (!value) {
+                  return 'Due date is required';
+                }
+          
+                if (selectedDate < today) {
+                  return 'Due date cannot be in the past';
+                }
+          
+                return undefined; // No error
+              },
+            }}
+            >
               {(field) => (
                 <div>
                   <label className="text-sm font-medium" htmlFor={field.name}>Due Date</label>
@@ -220,6 +251,32 @@ export function AddTaskButton() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
+                  <FieldInfo field={field} />
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <div>
+            <form.Field name="assignedTo">
+              {(field) => (
+                <div>
+                  <label className="text-sm font-medium" htmlFor={field.name}>Assign To</label>
+                  <Select
+                    value={field.state.value}
+                    onValueChange={(value) => field.handleChange(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teamMembers.map((member) => (
+                        <SelectItem key={member.id} value={member.id}>
+                          {member.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FieldInfo field={field} />
                 </div>
               )}
@@ -240,3 +297,4 @@ export function AddTaskButton() {
     </Dialog>
   )
 }
+
