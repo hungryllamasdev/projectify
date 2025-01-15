@@ -1,43 +1,37 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
+import { Suspense } from "react";
+// import ProjectHeader from "@/components/dashboard/ProjectHeader";
+import ProgressOverview from "@/components/project/dashboard/progress-overview";
+import TeamOverview from "@/components/project/dashboard/team-overview";
+import PriorityItems from "@/components/project/dashboard/priority-items";
+import QuickActions from "@/components/project/dashboard/quick-actions";
+import KeyMetrics from "@/components/project/dashboard/key-metrics";
+import { DashboardSkeleton } from "@/components/project/dashboard/dashboard-skeleton";
 
-export default function Dashboard({ projectId }: { projectId: string }) {
-  // This data would be fetched from your API
-  const urgentTasks = [
-    { id: 1, title: 'Urgent Task 1', deadline: '2023-06-30' },
-    { id: 2, title: 'Urgent Task 2', deadline: '2023-07-01' },
-  ]
-
-  const projectProgress = 65
-
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
-        <CardHeader>
-          <CardTitle>Urgent Tasks</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {urgentTasks.map(task => (
-              <li key={task.id} className="flex justify-between">
-                <span>{task.title}</span>
-                <span className="text-red-500">{task.deadline}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Progress value={projectProgress} className="w-full" />
-          <p className="text-center mt-2">{projectProgress}% Complete</p>
-        </CardContent>
-      </Card>
-      {/* Add more cards for other metrics */}
-    </div>
-  )
+export default function Dashboard() {
+    return (
+        <div className="container mx-auto p-4 space-y-4">
+            <Suspense fallback={<DashboardSkeleton />}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* <div className="col-span-full">
+                        <ProjectHeader />
+                    </div> */}
+                    <div className="col-span-full md:col-span-1 lg:col-span-2">
+                        <ProgressOverview />
+                    </div>
+                    <div className="col-span-full md:col-span-1">
+                        <TeamOverview />
+                    </div>
+                    <div className="col-span-full md:col-span-1">
+                        <PriorityItems />
+                    </div>
+                    <div className="col-span-full md:col-span-1">
+                        <QuickActions />
+                    </div>
+                    <div className="col-span-full">
+                        <KeyMetrics />
+                    </div>
+                </div>
+            </Suspense>
+        </div>
+    );
 }
-
