@@ -2,12 +2,6 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { TabsContent } from "@/components/ui/tabs";
-import Dashboard from "@/components/project/Dashboard";
-import { CustomKanban } from "@/components/project/Kanban";
-import Calendar from "@/components/project/Calendar";
-import List from "@/components/project/List";
-import GanttChart from "@/components/project/GanttChart";
 
 interface Task {
     id: string;
@@ -65,22 +59,31 @@ export default function ProjectDashboard() {
             },
             list: [
                 {
-                    id: 1,
+                    id: "1",
                     title: "Implement user login",
                     status: "completed",
                     type: "FEATURE",
+                    priority: "high",
+                    dueDate: "2025-01-20",
+                    description: "Implement user authentication system",
                 },
                 {
-                    id: 2,
+                    id: "2",
                     title: "Fix payment gateway bug",
                     status: "inProgress",
                     type: "BUG",
+                    priority: "critical",
+                    dueDate: "2025-01-15",
+                    description: "Resolve issues with payment processing",
                 },
                 {
-                    id: 3,
+                    id: "3",
                     title: "Write documentation for API",
                     status: "notStarted",
                     type: "TASK",
+                    priority: "medium",
+                    dueDate: "2025-01-25",
+                    description: "Create comprehensive API documentation",
                 },
             ],
         },
@@ -105,24 +108,6 @@ export default function ProjectDashboard() {
     const params = useParams();
     if (!projectData) return <div>No project data found</div>;
 
-    return (
-        <>
-            <TabsContent value="overview">
-                <h2 className="text-2xl font-bold mb-6">Project Overview</h2>
-                <Dashboard projectId={params.pid} />
-            </TabsContent>
-            <TabsContent value="kanban">
-                <CustomKanban />
-            </TabsContent>
-            <TabsContent value="calendar">
-                <Calendar />
-            </TabsContent>
-            <TabsContent value="list">
-                <List />
-            </TabsContent>
-            <TabsContent value="gantt">
-                <GanttChart />
-            </TabsContent>
-        </>
-    );
+    return null; // The content is now rendered in the layout component
 }
+
