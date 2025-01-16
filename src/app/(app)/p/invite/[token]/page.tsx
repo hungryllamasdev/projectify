@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import InvitationCard from "@/components/invitation-card";
+import { auth } from "@/auth";
 
 // Dummy data to simulate API response
 const dummyInvitationData = {
@@ -31,6 +32,14 @@ export default async function InvitationPage({
 }: {
     params: { token: string };
 }) {
+    const session = await auth();
+
+    // TODO: Make it work
+    if (!session?.user) {
+        const currentUrl = `p/invite/${params.token}`;
+        redirect(`/sign-in?callbackUrl=${encodeURIComponent(currentUrl)}`);
+    }
+
     const token = (await params).token;
     const invitationData = await getInvitationData(token);
 
@@ -39,7 +48,7 @@ export default async function InvitationPage({
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen flex items-center justify-center">
             <Suspense fallback={<div>Loading...</div>}>
                 <InvitationCard invitation={invitationData} />
             </Suspense>
