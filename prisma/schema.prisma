@@ -60,6 +60,8 @@ model Project {
   ownerID String
   owner   User   @relation(fields: [ownerID], references: [id], onDelete: Cascade)
 
+  shareTokens InviteToken[]
+
   members     ProjectAssignment[]
   tasks       Task[]
   ActivityLog ActivityLog[]
@@ -152,4 +154,19 @@ enum ActivityType {
   ADD_MEMBER
   REMOVE_MEMBER
   OTHER
+}
+
+model InviteToken {
+  id             String   @id @default(cuid())
+  token          String   @unique
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id])
+  expirationDate DateTime
+  maxUses        Int
+  uses           Int      @default(0)
+  accessLevel    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("invite_tokens")
 }

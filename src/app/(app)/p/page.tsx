@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Calendar, Clock } from 'lucide-react';
+import { Plus, Calendar, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -239,7 +239,10 @@ function NewProjectCard() {
                     </CardContent>
                 </Card>
             </DialogTrigger>
-            <DialogContent title="New Project" className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent
+                title="New Project"
+                className="max-w-4xl max-h-[90vh] overflow-y-auto"
+            >
                 <NewProjectPage />
             </DialogContent>
         </Dialog>
@@ -251,24 +254,39 @@ function ProjectCard({ project }) {
         <Link href={`/p/${project.id}`} passHref>
             <Card className="hover:shadow-lg transition-shadow duration-300 cursor-pointer">
                 <CardHeader>
-                    <CardTitle className="text-xl font-bold">{project.name}</CardTitle>
-                    <CardDescription className="text-sm text-gray-500 line-clamp-2">{project.description}</CardDescription>
+                    <CardTitle className="text-xl font-bold">
+                        {project.name}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-500 line-clamp-2">
+                        {project.description}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
                         <Calendar className="w-4 h-4" />
-                        <span>Start: {new Date(project.startDate).toLocaleDateString()}</span>
+                        <span>
+                            Start:{" "}
+                            {new Date(project.startDate).toLocaleDateString()}
+                        </span>
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
                         <Clock className="w-4 h-4" />
-                        <span>Updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
+                        <span>
+                            Updated:{" "}
+                            {new Date(project.updatedAt).toLocaleDateString()}
+                        </span>
                     </div>
                 </CardContent>
                 <CardFooter>
                     <div className="flex -space-x-2 overflow-hidden">
                         {project.members.map((member, index) => (
-                            <Avatar key={index} className="inline-block border-2 border-background">
-                                <AvatarFallback>{member.userId.slice(0, 2).toUpperCase()}</AvatarFallback>
+                            <Avatar
+                                key={index}
+                                className="inline-block border-2 border-background"
+                            >
+                                <AvatarFallback>
+                                    {member.userId.slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
                             </Avatar>
                         ))}
                     </div>
@@ -280,19 +298,33 @@ function ProjectCard({ project }) {
 
 // Main Dashboard Component
 export default function ProjectDashboard() {
-    const { data: projects, isLoading, error } = useQuery({
-        queryKey: ['projects'],
+    const {
+        data: projects,
+        isLoading,
+        error,
+    } = useQuery({
+        queryKey: ["projects"],
         queryFn: async () => {
-            const response = await fetch('/api/projects');
+            const response = await fetch("/api/projects");
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error("Network response was not ok");
             }
             return response.json();
         },
     });
 
-    if (isLoading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
-    if (error) return <div className="text-red-500 text-center">An error occurred: {error.message}</div>;
+    if (isLoading)
+        return (
+            <div className="flex justify-center items-center h-screen">
+                Loading...
+            </div>
+        );
+    if (error)
+        return (
+            <div className="text-red-500 text-center">
+                An error occurred: {error.message}
+            </div>
+        );
 
     return (
         <div className="container mx-auto p-6">
@@ -306,4 +338,3 @@ export default function ProjectDashboard() {
         </div>
     );
 }
-
