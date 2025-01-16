@@ -13,33 +13,15 @@ import {
     isToday,
     parseISO,
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
-interface Task {
-  id: string;
-  projectID: string;
-  title: string;
-  type: "FEATURE" | "BUG" | "TASK";
-  description?: string;
-  status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE";
-  isCompleted: boolean;
-  isPinned: boolean;
-  priority: "HIGH" | "MEDIUM" | "LOW";
-  dueDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface CalendarProps {
-  data: Task[];
-}
-
-export default function Calendar({ data }: CalendarProps) {
+export default function Calendar() {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [bookingsByDate, setBookingsByDate] = useState({});
 
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
@@ -50,27 +32,6 @@ export default function Calendar({ data }: CalendarProps) {
 
     const handleDateClick = (date: Date) => {
         setSelectedDate(date);
-    };
-
-    const tasksByDate = useMemo(() => {
-        const taskMap: { [key: string]: Task[] } = {};
-        data.forEach(task => {
-            if (task.dueDate) {
-                const dateKey = format(new Date(task.dueDate), "yyyy-MM-dd");
-                if (!taskMap[dateKey]) {
-                    taskMap[dateKey] = [];
-                }
-                taskMap[dateKey].push(task);
-            }
-        });
-        return taskMap;
-    }, [data]);
-
-    const statusColors = {
-        BACKLOG: "bg-gray-400",
-        TODO: "bg-yellow-400",
-        IN_PROGRESS: "bg-blue-400",
-        DONE: "bg-green-400"
     };
 
     return (
@@ -112,17 +73,17 @@ export default function Calendar({ data }: CalendarProps) {
                 <div className="grid grid-cols-7 gap-2">
                     {monthDays.map((day, dayIdx) => {
                         const dateKey = format(day, "yyyy-MM-dd");
-                        const dayTasks = tasksByDate[dateKey] || [];
+                        const dayRides = bookingsByDate[dateKey] || [];
                         return (
                             <Button
                                 key={day.toString()}
                                 variant="outline"
                                 className={`
-                                    h-20 p-2 flex flex-col items-start justify-start
-                                    ${!isSameMonth(day, currentDate) ? "opacity-50" : ""}
-                                    ${isToday(day) ? "border-blue-500 border-2" : ""}
-                                    ${isSameDay(day, selectedDate) ? "bg-blue-100" : ""}
-                                `}
+                        h-20 p-2 flex flex-col items-start justify-start
+                        ${!isSameMonth(day, currentDate) ? "opacity-50" : ""}
+                        ${isToday(day) ? "border-blue-500 border-2" : ""}
+                        ${isSameDay(day, selectedDate) ? "bg-blue-100" : ""}
+                      `}
                                 onClick={() => handleDateClick(day)}
                             >
                                 <span
@@ -133,18 +94,16 @@ export default function Calendar({ data }: CalendarProps) {
                                     {format(day, "d")}
                                 </span>
                                 <div className="flex flex-wrap gap-1 mt-1">
-                                    {dayTasks.slice(0, 3).map((task) => (
+                                    {dayRides.slice(0, 3).map((ride) => (
                                         <div
-                                            key={task.id}
-                                            className={`w-2 h-2 rounded-full ${statusColors[task.status]}`}
-                                            title={task.title}
+                                            key={ride.id}
+                                            className={`w-2 h-2 rounded-full ${
+                                                statusColors[ride.status].split(
+                                                    " "
+                                                )[0]
+                                            }`}
                                         ></div>
                                     ))}
-                                    {dayTasks.length > 3 && (
-                                        <div className="text-xs text-gray-500">
-                                            +{dayTasks.length - 3}
-                                        </div>
-                                    )}
                                 </div>
                             </Button>
                         );
@@ -154,4 +113,3 @@ export default function Calendar({ data }: CalendarProps) {
         </Card>
     );
 }
-
