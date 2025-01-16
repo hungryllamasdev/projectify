@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 
 export const POST = async (
     req: NextRequest,
-    { params }: { params: { projectId: string } }
+    { params }: { params: { pid: string } }
 ) => {
     const session = await auth();
 
@@ -13,17 +13,19 @@ export const POST = async (
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { pid } = await params;
     const body = await req.json();
     const { expirationTime, maxUses, accessLevel } = body;
 
-    if (!projectId || !expirationTime || !maxUses || !accessLevel) {
+    if (!pid || !expirationTime || !maxUses || !accessLevel) {
         return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
+    console.log(body)
+
     try {
         const project = await prisma.project.findUnique({
-            where: { id: projectId },
+            where: { id: pid },
             include: { members: true },
         });
 
@@ -40,7 +42,7 @@ export const POST = async (
         const inviteToken = await prisma.inviteToken.create({
             data: {
                 token,
-                projectId,
+                projectId: pid,
                 expirationDate,
                 maxUses,
                 uses: 0,

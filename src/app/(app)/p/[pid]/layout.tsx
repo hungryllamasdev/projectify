@@ -12,6 +12,7 @@ import { CustomKanban } from "@/components/project/Kanban";
 import Calendar from "@/components/project/Calendar";
 import List from "@/components/project/List";
 import GanttChart from "@/components/project/GanttChart";
+import { PIDProvider } from "@/contexts/pid-context";
 
 // Types
 interface TeamMember {
@@ -77,13 +78,13 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
     }
 
     return (
-        <>
+        <PIDProvider pid={pid}>
             {/* Pass teamMembers to ProjectHeader */}
             <ProjectHeader
                 initialProjectName={projectName}
                 teamMembers={teamMembers}
                 onProjectNameChange={handleProjectNameChange}
-                onShare={handleShare}
+                // onShare={handleShare}
             />
             <div className="container mx-auto p-6">
                 <div className="flex justify-between items-center mb-4">
@@ -139,6 +140,6 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                 </div>
                 <ActivityLog projectId={pid} />
             </div>
-        </>
+        </PIDProvider>
     );
 }
