@@ -9,7 +9,7 @@ import { ProjectHeader } from "@/components/project/header/project-header";
 import { AddTaskButton } from "@/components/project/AddTaskButton";
 import Dashboard from "@/components/project/Dashboard";
 import { CustomKanban } from "@/components/project/Kanban";
-import Calendar from "@/components/project/Calendar";
+import Calendar from "@/components/project/calendar/Calendar";
 import List from "@/components/project/List";
 import GanttChart from "@/components/project/GanttChart";
 import { TeamMembers } from "@/components/project/header/team-members";
@@ -120,7 +120,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
             </div>
             <TabsContent value="overview">
               <h2 className="text-2xl font-bold mb-6">Project Overview</h2>
-              <Dashboard  data={projectData} />
+              <Dashboard  data={projectData.tasks}/>
             </TabsContent>
             <TabsContent value="kanban">
               <CustomKanban data={projectData.tasks}/>
@@ -132,7 +132,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
               <Calendar data={projectData.tasks}/>
             </TabsContent>
             <TabsContent value="gantt">
-              <GanttChart data={projectData.tasks}/>
+              <GanttChart />
             </TabsContent>
             <TabsContent value="documentation">
               <h2 className="text-2xl font-bold mb-6">Documentation</h2>

@@ -7,7 +7,27 @@ import QuickActions from "@/components/project/dashboard/quick-actions";
 import KeyMetrics from "@/components/project/dashboard/key-metrics";
 import { DashboardSkeleton } from "@/components/project/dashboard/dashboard-skeleton";
 
-export default function Dashboard() {
+interface Task {
+    id: string;
+    projectID: string;
+    title: string;
+    type: "FEATURE" | "BUG" | "TASK";
+    description?: string;
+    status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE";
+    isCompleted: boolean;
+    isPinned: boolean;
+    priority: "HIGH" | "MEDIUM" | "LOW";
+    dueDate?: Date;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  
+  interface DashboardProps {
+    data: Task[];
+  }
+
+export default function Dashboard({data}: DashboardProps) {
+
     return (
         <div className="container mx-auto p-4 space-y-4">
             <Suspense fallback={<DashboardSkeleton />}>

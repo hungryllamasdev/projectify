@@ -1,96 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { auth } from "@/auth";
+import { auth } from '@/auth';
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { tid: string } }
-) {
-    const { tid } = await params;
+export async function PATCH(request: NextRequest, { params }: { params: { tid: string } }) {
+  const { tid } = await params;
 
-    try {
-        const session = await auth();
+  try {
+    const session = await auth();
 
-            // Check if the user is authenticated
-            if (!session || !session.user?.id) {
-                return NextResponse.json(
-                    { error: "Unauthorized" },
-                    { status: 401 }
-                );
-            }
-
-        const updateData = await request.json();
-
-        const updatedTask = await prisma.task.update({
-        where: {
-            id: tid,
-        },
-        data: updateData,
-        });
-
-        await prisma.activityLog.create({
-        data: {
-            type: 'UPDATE_TASK',
-            projectId: updatedTask.projectID,
-            taskId: updatedTask.id,
-        },
-        });
-
-        return NextResponse.json(updatedTask);
-    } catch (error) {
-        return NextResponse.json(
-        { error: 'Failed to update task' },
-        { status: 500 }
-        );
-    }
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-export async function DELETE(
-request: NextRequest,
-{ params }: { params: { tid: string } }
-) {
-    
-    const {tid} = await params;
-    try {
-        const session = await auth();
+    const updateData = await request.json();
 
-        // Check if the user is authenticated
-        if (!session || !session.user?.id) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
-        }
+    const updatedTask = await prisma.task.update({
+      where: { id: tid },
+      data: updateData,
+    });
 
-        const task = await prisma.task.findUnique({
-        where: { id: tid },
-        select: { id: true, projectID: true }
-        });
+    await prisma.activityLog.create({
+      data: {
+        type: 'UPDATE_TASK',
+        projectId: updatedTask.projectID,
+        taskId: updatedTask.id,
+      },
+    });
 
-        if (!task) {
-        return NextResponse.json(
-            { error: 'Task not found' },
-            { status: 404 }
-        );
-        }
+    return NextResponse.json(updatedTask);
+  } catch (error) {
+    console.error("Error updating task:", error);
+    return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
+  }
+}
 
-        await prisma.task.delete({
-        where: { id: tid }
-        });
+export async function DELETE(request: NextRequest, { params }: { params: { tid: string } }) {
+  const { tid } = await params;
 
-        await prisma.activityLog.create({
-        data: {
-            type: 'DELETE_TASK',
-            projectId: task.projectID,
-            taskId: task.id,
-        },
-        });
+  try {
+    const session = await auth();
 
-        return NextResponse.json({ message: 'Task deleted successfully' });
-    } catch (error) {
-        return NextResponse.json(
-        { error: 'Failed to delete task' },
-        { status: 500 }
-        );
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const task = await prisma.task.findUnique({
+      where: { id: tid },
+      select: { id: true, projectID: true },
+    });
+
+    if (!task) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    await prisma.task.delete({ where: { id: tid } });
+
+    await prisma.activityLog.create({
+      data: {
+        type: 'DELETE_TASK',
+        projectId: task.projectID,
+        taskId: task.id,
+      },
+    });
+
+    return NextResponse.json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
+  }
 }
