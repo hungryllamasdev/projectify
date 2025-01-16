@@ -2,9 +2,7 @@ name: Run Tests
 
 on:
   push:
-    branches: [ main, ali2 ]
-  pull_request:
-    branches: [ main ]
+    branches: [ main ] 
 
 jobs:
   test:
