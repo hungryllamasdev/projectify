@@ -76,3 +76,14 @@ export const declineInvitation = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     throw new Error("Invitation declined");
 };
+
+export const fetchDashboardData = async () => {
+    const res = await fetch("api/tasks");
+    if (res.status === 404) {
+        return null;
+    }
+    if (!res.ok) {
+        throw new Error("Failed to fetch dashboard data");
+    }
+    return res.json();
+};

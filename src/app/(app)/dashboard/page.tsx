@@ -1,43 +1,287 @@
-import { Metadata } from "next";
-// import { DashboardHeader } from "@/components/dashboard/header"; deprecated
-import { ProjectOverview } from "@/components/dashboard/project-overview";
-import { TaskList } from "@/components/dashboard/task-list";
-import { Metrics } from "@/components/dashboard/metrics";
-import { RecentActivity } from "@/components/dashboard/recent-activity";
-import { auth } from "@/auth";
-import { UserNav } from "@/components/nav/user-nav";
+"use client";
 
-export const metadata: Metadata = {
-    title: "Dashboard | Projectify",
-    description: "Project management for solo developers and small teams",
-};
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarDays, CheckCircle2, Folder, Pin, Star } from "lucide-react";
+import { ItemDetailsModal } from "@/components/dashboard/item-details.modal";
+import { fetchDashboardData } from "@/utils/api";
 
-export default async function DashboardPage() {
-    const session = await auth();
-    if (!session) return <div>Not authenticated</div>;
+export default function Dashboard() {
+    const [selectedItem, setSelectedItem] = useState<any>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["dashboardData"],
+        queryFn: fetchDashboardData,
+    });
+
+    const openModal = (item: any) => {
+        setSelectedItem(item);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedItem(null);
+    };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (isError) {
+        return <div>Error fetching dashboard data</div>;
+    }
+
+    const { myTasks, projects, pinnedTasks, upcomingDeadlines } = data;
+
     return (
-        <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
-            <div className="flex items-center justify-between space-y-2">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight">
-                        Welcome back!
-                    </h2>
-                    <p className="text-muted-foreground">
-                        Here&apos;s a list of your tasks for this month!
-                    </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <UserNav />
-                </div>
-            </div>{" "}
-            <div className="container mx-auto p-6 space-y-8">
-                <div className="grid gap-6 md:grid-cols-2">
-                    <ProjectOverview />
-                    <TaskList />
-                </div>
-                <Metrics />
-                <RecentActivity />
+        <div className="container mx-auto p-6">
+            <h1 className="text-4xl font-bold mb-8">Project Dashboard</h1>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            My Tasks
+                        </CardTitle>
+                        <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[200px]">
+                            {myTasks.map((task) => (
+                                <div
+                                    key={task.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(task)}
+                                >
+                                    <h3 className="font-medium">
+                                        {task.title}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {task.status}
+                                    </p>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            Projects
+                        </CardTitle>
+                        <Folder className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[200px]">
+                            {projects.map((project) => (
+                                <div
+                                    key={project.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(project)}
+                                >
+                                    <h3 className="font-medium">
+                                        {project.name}
+                                    </h3>
+                                    <div className="w-full bg-secondary mt-2 rounded-full h-2.5">
+                                        <div
+                                            className="bg-primary h-2.5 rounded-full"
+                                            style={{
+                                                width: `${project.progress}%`,
+                                            }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            Pinned Tasks
+                        </CardTitle>
+                        <Pin className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[200px]">
+                            {pinnedTasks.map((task) => (
+                                <div
+                                    key={task.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(task)}
+                                >
+                                    <h3 className="font-medium">
+                                        {task.title}
+                                    </h3>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            Upcoming Deadlines
+                        </CardTitle>
+                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[200px]">
+                            {upcomingDeadlines.map((deadline) => (
+                                <div
+                                    key={deadline.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(deadline)}
+                                >
+                                    <h3 className="font-medium">
+                                        {deadline.title}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {deadline.date}
+                                    </p>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
             </div>
+            <Card className="mt-6">
+                <CardHeader>
+                    <CardTitle>Project Overview</CardTitle>
+                    <CardDescription>
+                        A quick glance at your project stats
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Tabs defaultValue="tasks" className="w-full">
+                        <TabsList>
+                            <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                            <TabsTrigger value="projects">Projects</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="tasks">
+                            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                                        <CardTitle className="text-sm font-medium">
+                                            Total Tasks
+                                        </CardTitle>
+                                        <Star className="w-4 h-4 text-muted-foreground" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">
+                                            {myTasks.length}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                                        <CardTitle className="text-sm font-medium">
+                                            In Progress
+                                        </CardTitle>
+                                        <Star className="w-4 h-4 text-muted-foreground" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">
+                                            {
+                                                myTasks.filter(
+                                                    (task) =>
+                                                        task.status ===
+                                                        "IN_PROGRESS"
+                                                ).length
+                                            }
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                                        <CardTitle className="text-sm font-medium">
+                                            To Do
+                                        </CardTitle>
+                                        <Star className="w-4 h-4 text-muted-foreground" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">
+                                            {
+                                                myTasks.filter(
+                                                    (task) =>
+                                                        task.status === "TODO"
+                                                ).length
+                                            }
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                                        <CardTitle className="text-sm font-medium">
+                                            Done
+                                        </CardTitle>
+                                        <Star className="w-4 h-4 text-muted-foreground" />
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-2xl font-bold">
+                                            {
+                                                myTasks.filter(
+                                                    (task) =>
+                                                        task.status === "DONE"
+                                                ).length
+                                            }
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="projects">
+                            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                {projects.map((project) => (
+                                    <Card
+                                        key={project.id}
+                                        className="cursor-pointer hover:bg-accent"
+                                        onClick={() => openModal(project)}
+                                    >
+                                        <CardHeader>
+                                            <CardTitle>
+                                                {project.name}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="flex items-center space-x-4">
+                                                <div className="flex-1">
+                                                    <div className="w-full bg-secondary rounded-full h-2.5">
+                                                        <div
+                                                            className="bg-primary h-2.5 rounded-full"
+                                                            style={{
+                                                                width: `${project.progress}%`,
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-sm font-medium">
+                                                    {project.progress}%
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+            </Card>
+            <ItemDetailsModal
+                item={selectedItem}
+                isOpen={isModalOpen}
+                onClose={closeModal}
+            />
         </div>
     );
 }
