@@ -2,7 +2,10 @@ import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function GET(request: NextRequest, { params }: { params: { pid: string } }) {
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { pid: string } }
+) {
     const { pid } = await params;
 
     try {
@@ -49,7 +52,10 @@ export async function GET(request: NextRequest, { params }: { params: { pid: str
 }
 
 // POST: Create a new task for a project
-export async function POST(request: NextRequest, { params }: { params: { pid: string } }) {
+export async function POST(
+    request: NextRequest,
+    { params }: { params: { pid: string } }
+) {
     const { pid } = await params;
 
     try {
@@ -82,7 +88,10 @@ export async function POST(request: NextRequest, { params }: { params: { pid: st
 
         // Parse the request body
         const body = await request.json();
-        const { title, type, description, priority, dueDate } = body;
+        const { title, type, description, priority, dueDate, assignedTo } =
+            body;
+
+        console.log(body);
 
         // Validate required fields
         if (!title || !type || !priority) {
@@ -101,6 +110,7 @@ export async function POST(request: NextRequest, { params }: { params: { pid: st
                 description,
                 priority,
                 dueDate: dueDate ? new Date(dueDate) : undefined,
+                assigneeId: assignedTo,
             },
         });
 
