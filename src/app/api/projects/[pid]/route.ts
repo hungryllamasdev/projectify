@@ -77,7 +77,7 @@ export async function PATCH(
 
 // GET: Fetch project details
 export async function GET(request: NextRequest, { params }: { params: { pid: string } }) {
-    const { pid } = params;
+    const { pid } = await params;
 
     // Authenticate user
     const session = await auth();
