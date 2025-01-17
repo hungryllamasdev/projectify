@@ -21,8 +21,9 @@ model User {
   ActivityLog        ActivityLog[]
 
   // Authjs Relations
-  accounts Account[]
-  Project  Project[]
+  accounts    Account[]
+  Project     Project[]
+  InviteToken InviteToken[]
 
   @@map("users")
 }
@@ -165,6 +166,8 @@ model InviteToken {
   maxUses        Int
   uses           Int      @default(0)
   accessLevel    String
+  inviterId      String
+  inviter        User     @relation(fields: [inviterId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

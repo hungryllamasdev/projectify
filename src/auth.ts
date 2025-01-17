@@ -33,12 +33,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token, user }) {
             // Attach the user's ID from the token to the session object
             if (token) {
                 session.user.id = token.id;
                 session.user.image = token.image;
             }
+            // session.user.id = token.id;
+            // session.user.image = token.image;
+
+            console.log("session in auth callback", session);
+
             return session;
         },
 

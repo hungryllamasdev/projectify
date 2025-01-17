@@ -162,9 +162,10 @@ export default function InvitationCard({ invitation }) {
     const [errorMessage, setErrorMessage] = useState("");
 
     const acceptInvitationMutation = useMutation({
-        mutationFn: () => acceptInvitation(invitation.token, invitation.id),
+        mutationFn: () =>
+            acceptInvitation(invitation.token, invitation.project.id),
         onSuccess: () => {
-            router.push(`/p/${invitation.id}`);
+            router.replace(`/p/${invitation.project.id}`);
         },
         onError: (error) => {
             setErrorMessage(error.message);
@@ -221,21 +222,22 @@ export default function InvitationCard({ invitation }) {
                         <CheckCircle className="h-16 w-16 text-primary mx-auto" />
                     </motion.div>
                     <p className="mt-4 text-lg">
-                        You&apos;ve successfully joined {invitation.projectName}
-                        !
+                        You&apos;ve successfully joined{" "}
+                        {invitation.project.name}!
                     </p>
                 </CardContent>
             </Card>
         );
     }
 
+
     return (
         <Card className="w-full max-w-md">
             <CardHeader className="text-center">
                 <div className="mx-auto mb-4">
                     <Image
-                        src={invitation.projectLogo || "/placeholder.svg"}
-                        alt={`${invitation.projectName} logo`}
+                        src={invitation.projectLogo || "/favicon.ico"}
+                        alt={`${invitation.project.name} logo`}
                         width={64}
                         height={64}
                     />
@@ -244,17 +246,17 @@ export default function InvitationCard({ invitation }) {
                     You&apos;ve been invited to join
                 </CardTitle>
                 <CardTitle className="text-3xl font-bold text-primary">
-                    {invitation.projectName}
+                    {invitation.project.name}
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 {invitation.description && (
                     <p className="text-center text-muted-foreground mb-4">
-                        {invitation.description}
+                        {invitation.project.description}
                     </p>
                 )}
                 <p className="text-center text-sm text-muted-foreground">
-                    Invited by {invitation.inviterName}
+                    Invited by {invitation.inviter.name}
                 </p>
             </CardContent>
             <CardFooter className="flex flex-col space-y-2">
@@ -266,9 +268,7 @@ export default function InvitationCard({ invitation }) {
                 <Button
                     className="w-full"
                     onClick={() => acceptInvitationMutation.mutate()}
-                    disabled={
-                        acceptInvitationMutation.isPending
-                    }
+                    disabled={acceptInvitationMutation.isPending}
                 >
                     Accept Invitation
                 </Button>

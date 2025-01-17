@@ -9,6 +9,8 @@ export const POST = async (
 ) => {
     const session = await auth();
 
+    console.log("session", session);
+
     if (!session?.user) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -21,7 +23,7 @@ export const POST = async (
         return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    console.log(body)
+    console.log(body);
 
     try {
         const project = await prisma.project.findUnique({
@@ -47,6 +49,7 @@ export const POST = async (
                 maxUses,
                 uses: 0,
                 accessLevel,
+                inviterId: session.user.id,
             },
         });
 

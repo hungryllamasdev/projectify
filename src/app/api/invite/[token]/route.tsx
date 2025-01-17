@@ -19,6 +19,7 @@ export const GET = async (
             },
             include: {
                 project: true,
+                inviter: true,
             },
         });
 
@@ -44,6 +45,7 @@ export const GET = async (
         return isTokenValid(inviteToken)
             ? NextResponse.json({
                   project: inviteToken.project,
+                  inviter: inviteToken.inviter,
               })
             : NextResponse.json(
                   { error: "Invalid or expired link" },

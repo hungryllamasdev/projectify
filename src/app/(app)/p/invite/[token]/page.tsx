@@ -56,7 +56,7 @@ export default function InvitationPage({
     return (
         <div className="min-h-screen flex items-center justify-center">
             <Suspense fallback={<div>Loading...</div>}>
-                <InvitationCard invitation={{ ...data.project, token }} />
+                <InvitationCard invitation={{ project: data.project, token, inviter: data.inviter }} />
             </Suspense>
         </div>
     );
