@@ -1,7 +1,11 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useEffect } from "react";
 import { notFound, redirect } from "next/navigation";
 import InvitationCard from "@/components/invitation-card";
 import { auth } from "@/auth";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTokenData } from "@/utils/api";
 
 // Dummy data to simulate API response
 const dummyInvitationData = {
@@ -13,44 +17,46 @@ const dummyInvitationData = {
     token: "dummy-token",
 };
 
-async function getInvitationData(token: string) {
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Simulate different scenarios based on token
-    if (token === "expired") {
-        throw new Error("Invitation has expired");
-    } else if (token === "not-found") {
-        return null;
-    }
-
-    return { ...dummyInvitationData, token };
-}
-
-export default async function InvitationPage({
+export default function InvitationPage({
     params,
 }: {
     params: { token: string };
 }) {
-    const session = await auth();
+    // const session = await auth();
 
     // TODO: Make it work
-    if (!session?.user) {
-        const currentUrl = `p/invite/${params.token}`;
-        redirect(`/sign-in?callbackUrl=${encodeURIComponent(currentUrl)}`);
+    // if (!session?.user) {
+    //     const currentUrl = `p/invite/${params.token}`;
+    //     redirect(`/sign-in?callbackUrl=${encodeURIComponent(currentUrl)}`);
+    // }
+
+    const token = params.token;
+    console.log(token);
+
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["invitation", token],
+        queryFn: () => fetchTokenData(token),
+        enabled: !!token,
+    });
+
+    console.log(data);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
     }
 
-    const token = (await params).token;
-    const invitationData = await getInvitationData(token);
+    if (error) {
+        return <div>Error loading invitation. Please try again later.</div>;
+    }
 
-    if (!invitationData) {
+    if (!data) {
         notFound();
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center">
             <Suspense fallback={<div>Loading...</div>}>
-                <InvitationCard invitation={invitationData} />
+                <InvitationCard invitation={{ ...data.project, token }} />
             </Suspense>
         </div>
     );

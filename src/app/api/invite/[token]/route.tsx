@@ -6,7 +6,7 @@ export const GET = async (
     req: NextRequest,
     { params }: { params: { token: string } }
 ) => {
-    const { token } = params;
+    const { token } = await params;
 
     if (!token) {
         return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -39,13 +39,11 @@ export const GET = async (
             );
         };
 
+        console.log(isTokenValid(inviteToken));
+
         return isTokenValid(inviteToken)
             ? NextResponse.json({
-                  project: {
-                      id: inviteToken.project.id,
-                      name: inviteToken.project.name,
-                      description: inviteToken.project.description,
-                  },
+                  project: inviteToken.project,
               })
             : NextResponse.json(
                   { error: "Invalid or expired link" },
@@ -70,7 +68,7 @@ export const POST = async (
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { token } = params;
+    const { token } = await params;
     const body = await req.json();
     const { projectId } = body;
 
