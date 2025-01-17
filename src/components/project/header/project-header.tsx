@@ -16,6 +16,7 @@ export interface ProjectHeaderProps {
     initialProjectName: string;
     teamMembers: TeamMember[];
     onProjectNameChange: (newName: string) => void;
+    projectId: string;
 }
 
 export function ProjectHeader({

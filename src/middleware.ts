@@ -13,7 +13,7 @@ export default auth(async (req) => {
     );
 
     if (isLoggedIn && isAuthRoute) {
-        return Response.redirect(`${process.env.URL}/dashboard`);
+        return Response.redirect(`${process.env.NEXT_PUBLIC_URL}/dashboard`);
     }
 
     if (!isLoggedIn && isAuthRoute) {
@@ -22,7 +22,7 @@ export default auth(async (req) => {
 
     if (!isLoggedIn && isProtectedRoute) {
         console.log("Protected Route");
-        return Response.redirect(`${process.env.URL}/sign-in`);
+        return Response.redirect(`${process.env.NEXT_PUBLIC_URL}/sign-in`);
     }
     console.log(req.auth);
 });
