@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from "react";
 import { Row } from "@tanstack/react-table";
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
@@ -9,7 +9,12 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -30,8 +35,10 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
+import { labels } from "./data/data";
 
 interface Task {
+    label: string | undefined;
     id: string;
     projectID: string;
     title: string;
@@ -74,7 +81,7 @@ export function DataTableRowActions<TData>({
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
             setIsEditDialogOpen(false);
             toast({
                 title: "Success",
@@ -104,7 +111,7 @@ export function DataTableRowActions<TData>({
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
             toast({
                 title: "Success",
                 description: "Task deleted successfully",
@@ -154,12 +161,38 @@ export function DataTableRowActions<TData>({
     };
 
     const handleFieldChange = (field: keyof Task, value: any) => {
-        setEditedTask(prev => ({
+        setEditedTask((prev) => ({
             ...prev,
-            [field]: field === 'status' ? value.toUpperCase() : value,
+            [field]: field === "status" ? value.toUpperCase() : value,
         }));
     };
-    
+
+    function handleMakeCopy(): void {
+        throw new Error("Function not implemented.");
+    }
+
+    function handleFavorite(): void {
+        throw new Error("Function not implemented.");
+    }
+
+    console.log(task);
+    console.log("editedTask:", editedTask);
+
+    useEffect(() => {
+        if (isEditDialogOpen) {
+            setEditedTask({
+                title: task.title,
+                type: task.type,
+                description: task.description,
+                status: task.status,
+                isCompleted: task.isCompleted,
+                isPinned: task.isPinned,
+                priority: task.priority,
+                dueDate: task.dueDate,
+                projectID: task.projectID,
+            });
+        }
+    }, [isEditDialogOpen, task]);
 
     return (
         <>
@@ -174,14 +207,36 @@ export function DataTableRowActions<TData>({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[160px]">
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                         onClick={handleEdit}
                         disabled={editTask.isPending}
                     >
                         {editTask.isPending ? "Updating..." : "Edit"}
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleMakeCopy}>
+                        Make a copy
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleFavorite}>
+                        Favorite
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                            <DropdownMenuRadioGroup value={task.label}>
+                                {labels.map((label) => (
+                                    <DropdownMenuRadioItem
+                                        key={label.value}
+                                        value={label.value}
+                                    >
+                                        {label.label}
+                                    </DropdownMenuRadioItem>
+                                ))}
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
                         onClick={handleDelete}
                         disabled={deleteTask.isPending}
                         className="text-red-600"
@@ -200,25 +255,33 @@ export function DataTableRowActions<TData>({
                         <div className="grid gap-2">
                             <label>Title</label>
                             <Input
-                                value={editedTask.title || ''}
-                                onChange={(e) => handleFieldChange('title', e.target.value)}
+                                value={editedTask.title || ""}
+                                onChange={(e) =>
+                                    handleFieldChange("title", e.target.value)
+                                }
                                 placeholder="Task title"
                                 disabled={editTask.isPending}
+                                defaultValue={editedTask.title}
                             />
                         </div>
-                        
+
                         <div className="grid gap-2">
                             <label>Type</label>
                             <Select
                                 value={editedTask.type}
-                                onValueChange={(value) => handleFieldChange('type', value)}
+                                onValueChange={(value) =>
+                                    handleFieldChange("type", value)
+                                }
                                 disabled={editTask.isPending}
+                                defaultValue={editedTask.type}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="FEATURE">Feature</SelectItem>
+                                    <SelectItem value="FEATURE">
+                                        Feature
+                                    </SelectItem>
                                     <SelectItem value="BUG">Bug</SelectItem>
                                     <SelectItem value="TASK">Task</SelectItem>
                                 </SelectContent>
@@ -228,8 +291,13 @@ export function DataTableRowActions<TData>({
                         <div className="grid gap-2">
                             <label>Description</label>
                             <Textarea
-                                value={editedTask.description || ''}
-                                onChange={(e) => handleFieldChange('description', e.target.value)}
+                                value={editedTask.description || ""}
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        "description",
+                                        e.target.value
+                                    )
+                                }
                                 placeholder="Task description"
                                 disabled={editTask.isPending}
                             />
@@ -239,16 +307,22 @@ export function DataTableRowActions<TData>({
                             <label>Status</label>
                             <Select
                                 value={editedTask.status}
-                                onValueChange={(value) => handleFieldChange('status', value)}
+                                onValueChange={(value) =>
+                                    handleFieldChange("status", value)
+                                }
                                 disabled={editTask.isPending}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="BACKLOG">Backlog</SelectItem>
+                                    <SelectItem value="BACKLOG">
+                                        Backlog
+                                    </SelectItem>
                                     <SelectItem value="TODO">Todo</SelectItem>
-                                    <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                                    <SelectItem value="IN_PROGRESS">
+                                        In Progress
+                                    </SelectItem>
                                     <SelectItem value="DONE">Done</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -258,15 +332,20 @@ export function DataTableRowActions<TData>({
                             <label>Priority</label>
                             <Select
                                 value={editedTask.priority}
-                                onValueChange={(value) => handleFieldChange('priority', value)}
+                                onValueChange={(value) =>
+                                    handleFieldChange("priority", value)
+                                }
                                 disabled={editTask.isPending}
+                                defaultValue={task.priority.toUpperCase()}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select priority" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="HIGH">High</SelectItem>
-                                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                                    <SelectItem value="MEDIUM">
+                                        Medium
+                                    </SelectItem>
                                     <SelectItem value="LOW">Low</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -276,8 +355,19 @@ export function DataTableRowActions<TData>({
                             <label>Due Date</label>
                             <Input
                                 type="datetime-local"
-                                value={editedTask.dueDate ? new Date(editedTask.dueDate).toISOString().slice(0, 16) : ''}
-                                onChange={(e) => handleFieldChange('dueDate', new Date(e.target.value))}
+                                value={
+                                    editedTask.dueDate
+                                        ? new Date(editedTask.dueDate)
+                                              .toISOString()
+                                              .slice(0, 16)
+                                        : ""
+                                }
+                                onChange={(e) =>
+                                    handleFieldChange(
+                                        "dueDate",
+                                        new Date(e.target.value)
+                                    )
+                                }
                                 disabled={editTask.isPending}
                             />
                         </div>
@@ -286,7 +376,9 @@ export function DataTableRowActions<TData>({
                             <label>Completed</label>
                             <Switch
                                 checked={editedTask.isCompleted || false}
-                                onCheckedChange={(checked) => handleFieldChange('isCompleted', checked)}
+                                onCheckedChange={(checked) =>
+                                    handleFieldChange("isCompleted", checked)
+                                }
                                 disabled={editTask.isPending}
                             />
                         </div>
@@ -295,7 +387,9 @@ export function DataTableRowActions<TData>({
                             <label>Pinned</label>
                             <Switch
                                 checked={editedTask.isPinned || false}
-                                onCheckedChange={(checked) => handleFieldChange('isPinned', checked)}
+                                onCheckedChange={(checked) =>
+                                    handleFieldChange("isPinned", checked)
+                                }
                                 disabled={editTask.isPending}
                             />
                         </div>
@@ -308,7 +402,7 @@ export function DataTableRowActions<TData>({
                         >
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             onClick={handleSave}
                             disabled={editTask.isPending}
                         >
@@ -320,4 +414,3 @@ export function DataTableRowActions<TData>({
         </>
     );
 }
-

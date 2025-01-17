@@ -86,6 +86,8 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
         return <>{children}</>;
     }
 
+    console.log("TASKA:", projectData)
+
     return (
         <PIDProvider pid={pid}>
             <ProjectHeader
