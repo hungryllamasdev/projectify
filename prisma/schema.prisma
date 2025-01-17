@@ -24,6 +24,7 @@ model User {
   accounts    Account[]
   Project     Project[]
   InviteToken InviteToken[]
+  Task        Task[]
 
   @@map("users")
 }
@@ -96,6 +97,8 @@ model Task {
   title       String
   type        TaskType
   description String?
+  assignee    User         @relation(fields: [assigneeId], references: [id])
+  assigneeId  String
   status      TaskStatus   @default(TODO)
   isCompleted Boolean      @default(false)
   isPinned    Boolean      @default(false)
