@@ -8,11 +8,12 @@ import ActivityLog from "@/components/project/ActivityLog";
 import { ProjectHeader } from "@/components/project/header/project-header";
 import { AddTaskButton } from "@/components/project/AddTaskButton";
 import Dashboard from "@/components/project/Dashboard";
-import { CustomKanban } from "@/components/project/Kanban";
+
 import Calendar from "@/components/project/calendar/Calendar";
 import List from "@/components/project/List";
 import GanttChart from "@/components/project/GanttChart";
 import { TeamMembers } from "@/components/project/header/team-members";
+import CustomKanban from "@/components/project/Kanban";
 
 // Types
 interface TeamMember {

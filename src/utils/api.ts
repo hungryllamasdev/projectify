@@ -9,3 +9,4 @@ export const createProject = async (project) => {
 
     return response.json();
 };
+
