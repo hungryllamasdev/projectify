@@ -1,10 +1,11 @@
 'use client'
 
 import * as React from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, Home, Inbox, Brain, Calendar, ListTodo, Settings, Users, Plus, ChevronDown, FolderKanban, Timer, BarChart2, ChevronRight, UserPlus } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { NewProject } from "@/components/project/NewProject"
+import { getProjects } from "@/utils/api"
+import { ProjectItem } from "@/utils/types"
 
 interface NavItem {
   icon: React.ElementType
@@ -24,27 +29,20 @@ interface NavItem {
   href: string
 }
 
-interface ProjectItem {
-  id: string
-  name: string
-  pinned: boolean
-}
-
-// Separate API function
-const getProjects = async (): Promise<ProjectItem[]> => {
-  const response = await fetch('/api/projects')
-  if (!response.ok) {
-    throw new Error('Network response was not ok')
-  }
-  return response.json()
-}
 
 export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = React.useState(true)
-  const [expandedSections, setExpandedSections] = React.useState<string[]>([])
+  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [expandedSections, setExpandedSections] = useState<string[]>([])
+  const [isMounted, setIsMounted] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const router = useRouter()
+  const queryClient = useQueryClient()
   
-  // Use React Query hook with the separate API function
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+ 
   const { data: projects, isLoading, isError } = useQuery({
     queryKey: ['projects'],
     queryFn: getProjects
@@ -56,6 +54,12 @@ export function Sidebar() {
         ? prev.filter(id => id !== sectionId)
         : [...prev, sectionId]
     )
+  }
+
+  const handleProjectCreated = async (projectId: string) => {
+    setIsDialogOpen(false)
+    await queryClient.invalidateQueries({ queryKey: ['projects'] })
+    router.push(`/p/${projectId}`)
   }
 
   const NavItem = ({ icon: Icon, label, href }: NavItem) => (
@@ -82,6 +86,10 @@ export function Sidebar() {
       )}
     </Tooltip>
   )
+
+  if (!isMounted) {
+    return null
+  }
 
   return (
     <TooltipProvider>
@@ -122,14 +130,21 @@ export function Sidebar() {
 
           {/* Projects */}
           <div className="mt-4">
-            {!isCollapsed && (
-              <div className="flex items-center justify-between px-2 mb-2">
-                <Link href="/p" className="text-xs font-medium text-muted-foreground hover:text-primary">Projects</Link>
-                <Button variant="ghost" size="icon" className="h-4 w-4">
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </div>
-            )}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              {!isCollapsed && (
+                <div className="flex items-center justify-between px-2 mb-2">
+                  <Link href="/p" className="text-xs font-medium text-muted-foreground hover:text-primary">Projects</Link>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-4 w-4">
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </DialogTrigger>
+                </div>
+              )}
+              <DialogContent className="sm:max-w-[425px]">
+                <NewProject onSuccess={handleProjectCreated} />
+              </DialogContent>
+            </Dialog>
             {isLoading && <p className="text-muted-foreground text-sm px-2">Loading...</p>}
             {isError && <p className="text-error text-sm px-2">Failed to load projects</p>}
             {projects?.map((project: ProjectItem) => (
