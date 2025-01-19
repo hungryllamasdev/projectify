@@ -1,3 +1,5 @@
+import { ProjectItem } from "./types";
+
 export const createProject = async (project) => {
     const response = await fetch("/api/projects", {
         method: "POST",
@@ -87,3 +89,11 @@ export const fetchDashboardData = async () => {
     }
     return res.json();
 };
+
+export const getProjects = async (): Promise<ProjectItem[]> => {
+    const response = await fetch('/api/projects')
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    return response.json()
+  }
