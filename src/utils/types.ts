@@ -47,4 +47,17 @@ export interface ProjectItem {
     id: string
     name: string
     pinned: boolean
+}
+ 
+export interface TeamMember {
+    id: string;
+    name: string;
+    avatar: string;
+}
+
+export interface Project {
+    name: string;
+    description: string; 
+    startDate: string; 
   }
+  

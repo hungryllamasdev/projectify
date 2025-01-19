@@ -1,6 +1,6 @@
-import { ProjectItem } from "./types";
+import { ProjectItem, TeamMember, Project } from "./types";
 
-export const createProject = async (project) => {
+export const createProject = async (project: Project) => {
     const response = await fetch("/api/projects", {
         method: "POST",
         headers: {
@@ -97,3 +97,15 @@ export const getProjects = async (): Promise<ProjectItem[]> => {
     }
     return response.json()
   }
+
+export const fetchProjectData = async (projectId: string) => {
+    const response = await fetch(`/api/projects/${projectId}`);
+    if (!response.ok) throw new Error("Failed to fetch project data");
+    return response.json();
+};
+
+export const fetchAssignableUsers = async (projectId: string): Promise<TeamMember[]> => {
+    const response = await fetch(`/api/projects/${projectId}/assignable-users`);
+    if (!response.ok) throw new Error("Failed to fetch assignable users");
+    return response.json();
+};
