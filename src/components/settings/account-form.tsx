@@ -33,6 +33,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 const languages = [
     { label: "English", value: "en" },
@@ -72,6 +73,7 @@ const defaultValues: Partial<AccountFormValues> = {
 };
 
 export function AccountForm() {
+    const session = useSession();
     const form = useForm<AccountFormValues>({
         resolver: zodResolver(accountFormSchema),
         defaultValues,
@@ -100,7 +102,11 @@ export function AccountForm() {
                         <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
-                                <Input placeholder="Your name" {...field} />
+                                <Input
+                                    defaultValue={session?.data?.user?.name}
+                                    placeholder="Your name"
+                                    {...field}
+                                />
                             </FormControl>
                             <FormDescription>
                                 This is the name that will be displayed on your

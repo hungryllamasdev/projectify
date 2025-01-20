@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,4 +10,60 @@ export async function GET(
         { error: "Internal server error" },
         { status: 500 }
     );
+}
+
+export async function PATCH(req: NextRequest) {
+    const session = await auth();
+
+    if (!session || !session.user || !session.user.email) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+        });
+    }
+
+    const { email } = session.user;
+
+    try {
+        const body = await req.json();
+        const { name, image, isActive } = body;
+
+        // Validate input
+        if (name && typeof name !== "string") {
+            return new Response(JSON.stringify({ error: "Invalid name" }), {
+                status: 400,
+            });
+        }
+
+        if (image && typeof image !== "string") {
+            return new Response(
+                JSON.stringify({ error: "Invalid image URL" }),
+                { status: 400 }
+            );
+        }
+
+        if (isActive !== undefined && typeof isActive !== "boolean") {
+            return new Response(
+                JSON.stringify({ error: "Invalid isActive value" }),
+                { status: 400 }
+            );
+        }
+
+        // Update user in database
+        const updatedUser = await prisma.user.update({
+            where: { email },
+            data: {
+                name,
+                image,
+                isActive,
+            },
+        });
+
+        return new Response(JSON.stringify(updatedUser), { status: 200 });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return new Response(
+            JSON.stringify({ error: "Internal server error" }),
+            { status: 500 }
+        );
+    }
 }
