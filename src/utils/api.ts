@@ -91,12 +91,12 @@ export const fetchDashboardData = async () => {
 };
 
 export const getProjects = async (): Promise<ProjectItem[]> => {
-    const response = await fetch('/api/projects')
+    const response = await fetch("/api/projects");
     if (!response.ok) {
-      throw new Error('Network response was not ok')
+        throw new Error("Network response was not ok");
     }
-    return response.json()
-  }
+    return response.json();
+};
 
 export const fetchProjectData = async (projectId: string) => {
     const response = await fetch(`/api/projects/${projectId}`);
@@ -104,8 +104,27 @@ export const fetchProjectData = async (projectId: string) => {
     return response.json();
 };
 
-export const fetchAssignableUsers = async (projectId: string): Promise<TeamMember[]> => {
+export const fetchAssignableUsers = async (
+    projectId: string
+): Promise<TeamMember[]> => {
     const response = await fetch(`/api/projects/${projectId}/assignable-users`);
     if (!response.ok) throw new Error("Failed to fetch assignable users");
     return response.json();
 };
+
+export async function updateUserProfile(data: { name: string }): Promise<any> {
+    const response = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update profile");
+    }
+
+    return response.json();
+}

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/sidebar/sidebar";
 import { Toaster } from "@/components/ui/toaster";
 import QueryProvider from "@/components/providers/react-query-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={inter.className} suppressHydrationWarning>
+            <SessionProvider>
             <body className="bg-background text-foreground">
                 <ThemeProvider
                     attribute="class"
@@ -38,6 +40,7 @@ export default function RootLayout({
                     </QueryProvider>
                 </ThemeProvider>
             </body>
+            </SessionProvider>
         </html>
     );
 }
