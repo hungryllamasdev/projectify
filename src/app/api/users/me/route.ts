@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, image, isActive } = body;
+        const { name } = body;
 
         // Validate input
         if (name && typeof name !== "string") {
@@ -34,27 +34,11 @@ export async function PATCH(req: NextRequest) {
             });
         }
 
-        if (image && typeof image !== "string") {
-            return new Response(
-                JSON.stringify({ error: "Invalid image URL" }),
-                { status: 400 }
-            );
-        }
-
-        if (isActive !== undefined && typeof isActive !== "boolean") {
-            return new Response(
-                JSON.stringify({ error: "Invalid isActive value" }),
-                { status: 400 }
-            );
-        }
-
         // Update user in database
         const updatedUser = await prisma.user.update({
             where: { email },
             data: {
                 name,
-                image,
-                isActive,
             },
         });
 
