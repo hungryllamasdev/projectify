@@ -1,57 +1,38 @@
-import { Suspense } from "react";
-// import ProjectHeader from "@/components/dashboard/ProjectHeader";
-import ProgressOverview from "@/components/project/dashboard/progress-overview";
-import TeamOverview from "@/components/project/dashboard/team-overview";
-import PriorityItems from "@/components/project/dashboard/priority-items";
-import QuickActions from "@/components/project/dashboard/quick-actions";
-import KeyMetrics from "@/components/project/dashboard/key-metrics";
-import { DashboardSkeleton } from "@/components/project/dashboard/dashboard-skeleton";
+import ProgressOverview from "@/components/project/dashboard/progress-overview"
+import TeamOverview from "@/components/project/dashboard/team-overview"
+import PriorityItems from "@/components/project/dashboard/priority-items"
+import QuickActions from "@/components/project/dashboard/quick-actions"
+import KeyMetrics from "@/components/project/dashboard/key-metrics"
+import { DashboardData } from "@/utils/types"
 
-interface Task {
-    id: string;
-    projectID: string;
-    title: string;
-    type: "FEATURE" | "BUG" | "TASK";
-    description?: string;
-    status: "BACKLOG" | "TODO" | "IN_PROGRESS" | "DONE";
-    isCompleted: boolean;
-    isPinned: boolean;
-    priority: "HIGH" | "MEDIUM" | "LOW";
-    dueDate?: Date;
-    createdAt: Date;
-    updatedAt: Date;
-  }
-  
-  interface DashboardProps {
-    data: Task[];
-  }
 
-export default function Dashboard({data}: DashboardProps) {
-
-    return (
-        <div className="container mx-auto p-4 space-y-4">
-            <Suspense fallback={<DashboardSkeleton />}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* <div className="col-span-full">
-                        <ProjectHeader />
-                    </div> */}
-                    <div className="col-span-full md:col-span-1 lg:col-span-2">
-                        <ProgressOverview />
-                    </div>
-                    <div className="col-span-full md:col-span-1">
-                        <TeamOverview />
-                    </div>
-                    <div className="col-span-full md:col-span-1">
-                        <PriorityItems />
-                    </div>
-                    <div className="col-span-full md:col-span-1">
-                        <QuickActions />
-                    </div>
-                    <div className="col-span-full">
-                        <KeyMetrics />
-                    </div>
-                </div>
-            </Suspense>
-        </div>
-    );
+interface DashboardProps {
+  data: DashboardData | undefined
 }
+
+export default function Dashboard({ data }: DashboardProps) {
+  if (!data) {
+    return <div>Loading dashboard data...</div>
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="col-span-full md:col-span-1 lg:col-span-2">
+        <ProgressOverview data={data.progress} />
+      </div>
+      <div className="col-span-full md:col-span-1">
+        <TeamOverview data={data.team} />
+      </div>
+      <div className="col-span-full md:col-span-1">
+        <PriorityItems data={data.priorityItems} />
+      </div>
+      <div className="col-span-full md:col-span-1">
+        <QuickActions />
+      </div>
+      <div className="col-span-full">
+        <KeyMetrics data={data.tasksByStatus} />
+      </div>
+    </div>
+  )
+}
+

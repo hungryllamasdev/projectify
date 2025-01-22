@@ -1,4 +1,4 @@
-import { ProjectItem, TeamMember, Project } from "./types";
+import { ProjectItem, TeamMember, Project, DashboardData } from "./types";
 
 export const createProject = async (project: Project) => {
     const response = await fetch("/api/projects", {
@@ -127,4 +127,14 @@ export async function updateUserProfile(data: { name: string }): Promise<any> {
     }
 
     return response.json();
+}
+
+export async function fetchProjectDashboardData(projectId: string): Promise<DashboardData> {
+  const response = await fetch(`/api/projects/${projectId}/dashboard`);
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch dashboard data');
+  }
+
+  return response.json();
 }

@@ -1,15 +1,21 @@
-'use client'
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { TaskStatus, TaskPriority } from "@prisma/client"
 
-const priorityItems = [
-  { title: 'Complete wireframes', deadline: '2 days', status: 'urgent' },
-  { title: 'Review code PR', deadline: '1 day', status: 'blocked' },
-  { title: 'Update documentation', deadline: 'Overdue', status: 'overdue' },
-]
+interface PriorityItemsProps {
+  data: {
+    id: string
+    title: string
+    dueDate: string | null
+    status: TaskStatus
+    priority: TaskPriority
+    assigneeName: string | null
+  }[]
+}
 
-export default function PriorityItems() {
+export default function PriorityItems({ data }: PriorityItemsProps) {
   return (
     <Card>
       <CardHeader>
@@ -17,14 +23,22 @@ export default function PriorityItems() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-4">
-          {priorityItems.map((item, index) => (
-            <li key={index} className="flex justify-between items-center">
+          {data.map((item) => (
+            <li key={item.id} className="flex justify-between items-center">
               <div>
                 <p className="font-medium">{item.title}</p>
-                <p className="text-sm text-gray-500">{item.deadline}</p>
+                <p className="text-sm text-gray-500">
+                  {item.dueDate ? new Date(item.dueDate).toLocaleDateString() : "No due date"}
+                </p>
               </div>
               <Badge
-                variant={item.status === 'urgent' ? 'destructive' : item.status === 'blocked' ? 'outline' : 'secondary'}
+                variant={
+                  item.priority === TaskPriority.HIGH
+                    ? "destructive"
+                    : item.status === TaskStatus.BACKLOG
+                      ? "outline"
+                      : "secondary"
+                }
               >
                 {item.status}
               </Badge>
