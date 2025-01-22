@@ -1,18 +1,17 @@
-'use client'
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import type { TaskStatus } from "@prisma/client"
 
-const data = [
-  { name: 'Jan', total: 100 },
-  { name: 'Feb', total: 200 },
-  { name: 'Mar', total: 150 },
-  { name: 'Apr', total: 300 },
-  { name: 'May', total: 250 },
-  { name: 'Jun', total: 400 },
-]
+interface KeyMetricsProps {
+  data: {
+    status: TaskStatus
+    count: number
+  }[]
+}
 
-export default function KeyMetrics() {
+export default function KeyMetrics({ data }: KeyMetricsProps) {
   return (
     <Card>
       <CardHeader>
@@ -48,9 +47,15 @@ export default function KeyMetrics() {
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-              <Bar dataKey="total" fill="#adfa1d" radius={[4, 4, 0, 0]} />
+              <XAxis dataKey="status" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `${value}`}
+              />
+              <Bar dataKey="count" fill="#adfa1d" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

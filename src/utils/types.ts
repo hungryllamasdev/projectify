@@ -1,3 +1,5 @@
+import { TaskStatus, TaskPriority, ProjectRole, ActivityType } from "@prisma/client";
+
 export interface User {
     id: string;
     name: string;
@@ -59,5 +61,40 @@ export interface Project {
     name: string;
     description: string; 
     startDate: string; 
+}
+
+export interface DashboardData {
+  progress: {
+    overall: number
+    completedTasks: number
+    totalTasks: number
+    tasksByStatus: Record<TaskStatus, number>
   }
+  team: {
+    name: string | null
+    role: ProjectRole
+    image: string | null
+    email: string
+  }[]
+  priorityItems: {
+    id: string
+    title: string
+    dueDate: string | null
+    status: TaskStatus
+    priority: TaskPriority
+    assigneeName: string | null
+  }[]
+  activityFeed: {
+    id: string
+    type: ActivityType
+    timestamp: Date
+    userName: string | null
+  }[]
+  tasksByStatus: {
+    status: TaskStatus
+    count: number
+  }[]
+}
+
+
   

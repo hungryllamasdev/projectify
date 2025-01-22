@@ -1,17 +1,21 @@
-'use client'
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import type { ProjectRole } from "@prisma/client"
 
-const teamMembers = [
-  { name: 'Alice', role: 'Designer', avatar: '/placeholder.svg?height=32&width=32' },
-  { name: 'Bob', role: 'Developer', avatar: '/placeholder.svg?height=32&width=32' },
-  { name: 'Charlie', role: 'PM', avatar: '/placeholder.svg?height=32&width=32' },
-]
+interface TeamOverviewProps {
+  data: {
+    name: string | null
+    role: ProjectRole
+    image: string | null
+    email: string
+  }[]
+}
 
-export default function TeamOverview() {
+export default function TeamOverview({ data }: TeamOverviewProps) {
   return (
     <Card>
       <CardHeader>
@@ -19,11 +23,11 @@ export default function TeamOverview() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {teamMembers.map((member, index) => (
+          {data.map((member, index) => (
             <div key={index} className="flex items-center space-x-4">
               <Avatar>
-                <AvatarImage src={member.avatar} alt={member.name} />
-                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                <AvatarImage src={member.image || undefined} alt={member.name || ""} />
+                <AvatarFallback>{member.name ? member.name[0] : "?"}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-medium">{member.name}</p>
