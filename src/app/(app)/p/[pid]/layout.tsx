@@ -106,7 +106,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                 <CustomKanban data={projectData?.tasks || []} />
               </TabsContent>
               <TabsContent value="list">
-                <List data={projectData?.tasks || []} />
+                <List members={assignableUsers} data={projectData?.tasks || []} />
               </TabsContent>
               <TabsContent value="calendar">
                 <Calendar data={projectData?.tasks || []} />

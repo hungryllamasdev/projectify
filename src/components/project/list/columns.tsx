@@ -1,14 +1,17 @@
 "use client"
 
-import { ColumnDef } from "@tanstack/react-table"
+import type { ColumnDef } from "@tanstack/react-table"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { labels, priorities, statuses } from "./data/data"
-import { Task } from "./data/data"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
+import { format } from "date-fns"
+import type { TeamMember } from "@/utils/types"
+import type { Task } from "@/utils/types"
 
-export const columns: ColumnDef<Task>[] = [
+export const createColumns = (assignableUsers: TeamMember[]): ColumnDef<Task>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -31,52 +34,78 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "pinned",
+    header: "Pinned",
+    cell: ({ row }) => {
+      const isPinned = row.getValue("pinned") as boolean
+      const taskId = row.original.id as string
+
+      const togglePinned = async () => {
+        try {
+          const response = await fetch(`/api/tasks/${taskId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isPinned: !isPinned }),
+          })
+
+          if (!response.ok) {
+            throw new Error("Failed to update task")
+          }
+
+          // Refresh the data after successful update
+          row.toggleSelected(false)
+        } catch (error) {
+          console.error("Error updating task:", error)
+        }
+      }
+
+      return <Checkbox checked={isPinned} onCheckedChange={togglePinned} aria-label="Toggle pinned" />
+    },
+  },
+  {
     accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
-    ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Task" />,
+    cell: ({ row }) => <div className="w-[80px] font-medium">{row.getValue("id")}</div>,
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "title",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
-    ),
+    accessorKey: "label",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label)
-
+      const label = labels.find((label) => label.value === row.getValue("label"))
+      return label ? <Badge variant="outline">{label.label}</Badge> : null
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: "title",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Title" />,
+    cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          {label && <Badge variant="outline">{label.label}</Badge>}
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("title")}
-          </span>
+          <span className="max-w-[500px] truncate font-medium">{row.getValue("title")}</span>
         </div>
       )
     },
   },
   {
     accessorKey: "status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
-      const status = statuses.find(
-        (status) => status.value === row.getValue("status")
-      )
+      const status = row.getValue("status") as string
+      const statusObj = statuses.find((s) => s.value === status.toLowerCase())
 
-      if (!status) {
-        return null
+      if (!statusObj) {
+        return status
       }
 
       return (
         <div className="flex w-[100px] items-center">
-          {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{status.label}</span>
+          {statusObj.icon && <statusObj.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+          <span>{statusObj.label}</span>
         </div>
       )
     },
@@ -85,30 +114,56 @@ export const columns: ColumnDef<Task>[] = [
     },
   },
   {
-    accessorKey: "priority",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Priority" />
-    ),
+    accessorKey: "dueDate",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Due Date" />,
     cell: ({ row }) => {
-      const priority = priorities.find(
-        (priority) => priority.value === row.getValue("priority")
-      )
+      const dueDate = row.getValue("dueDate") as Date | undefined
+      return dueDate ? format(new Date(dueDate), "dd/MM") : "-"
+    },
+  },
+  {
+    accessorKey: "priority",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Priority" />,
+    cell: ({ row }) => {
+      const priority = row.getValue("priority") as string
+      const priorityObj = priorities.find((p) => p.value === priority.toLowerCase())
 
-      if (!priority) {
-        return null
+      if (!priorityObj) {
+        return priority
       }
 
       return (
         <div className="flex items-center">
-          {priority.icon && (
-            <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{priority.label}</span>
+          {priorityObj.icon && <priorityObj.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+          <span>{priorityObj.label}</span>
         </div>
       )
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: "assignedTo",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Assigned To" />,
+    cell: ({ row }) => {
+      const assignedToId = row.getValue("assignedTo") as string
+      const user = assignableUsers.find((user) => user.id === assignedToId)
+      if (!user) return "Unassigned"
+
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <span>{user.name}</span>
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      const assignedToId = row.getValue(id) as string
+      return value.includes(assignedToId || "unassigned")
     },
   },
   {
