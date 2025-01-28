@@ -125,7 +125,14 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
             </Suspense>
           </Tabs>
         </div>
-        <ActivityLog projectId={pid} />
+        <ActivityLog 
+          projectId={pid} 
+          members={assignableUsers.map(user => ({
+            id: user.id,
+            name: user.name,
+            avatar: user.avatar 
+          }))}
+        />
       </div>
     </PIDProvider>
   )

@@ -1,4 +1,5 @@
 import { TaskStatus, TaskPriority, ProjectRole, ActivityType } from "@prisma/client";
+import type { DateRange } from "react-day-picker"
 
 export interface User {
     id: string;
@@ -94,6 +95,26 @@ export interface DashboardData {
     status: TaskStatus
     count: number
   }[]
+}
+
+export interface ActivityLogItem {
+  id: string
+  type: string
+  userId: string
+  taskId?: string
+  timestamp: string
+  user?: {
+    name: string
+  }
+  task?: {
+    title: string
+  }
+}
+
+export interface FetchActivitiesFilters {
+  searchTerm: string
+  dateRange?: DateRange
+  selectedUser: string
 }
 
 

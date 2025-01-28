@@ -1,4 +1,4 @@
-import { ProjectItem, TeamMember, Project, DashboardData } from "./types";
+import { ProjectItem, TeamMember, Project, DashboardData, FetchActivitiesFilters } from "./types";
 
 export const createProject = async (project: Project) => {
     const response = await fetch("/api/projects", {
@@ -138,3 +138,21 @@ export async function fetchProjectDashboardData(projectId: string): Promise<Dash
 
   return response.json();
 }
+
+export async function fetchActivities(projectId: string, filters: FetchActivitiesFilters) {
+  const { searchTerm, dateRange, selectedUser } = filters
+  const url = `/api/projects/${projectId}/activity-log?`
+
+  const params = new URLSearchParams()
+  if (searchTerm) params.append("search", searchTerm)
+  if (selectedUser && selectedUser !== "all") params.append("userId", selectedUser)
+  if (dateRange?.from) params.append("startDate", dateRange.from.toISOString())
+  if (dateRange?.to) params.append("endDate", dateRange.to.toISOString())
+
+  const response = await fetch(`${url}${params.toString()}`)
+  if (!response.ok) throw new Error("Failed to fetch activities")
+  return response.json()
+}
+
+
+
