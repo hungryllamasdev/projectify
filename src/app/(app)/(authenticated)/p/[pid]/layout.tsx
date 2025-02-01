@@ -19,8 +19,7 @@ import {
     fetchProjectDashboardData,
 } from "@/utils/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import Documentation from "@/components/documentation/documentation-editor";
-import { EditorToolbar } from "@/components/documentation/editor-toolbar";
+import ProjectDocumentationEditor from "@/components/documentation/documentation-editor";
 
 interface ProjectLayoutProps {
     children: React.ReactNode;
@@ -134,7 +133,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                                 <GanttChart />
                             </TabsContent>
                             <TabsContent value="documentation">
-                                <Documentation />
+                                <ProjectDocumentationEditor projectId={pid} />
                             </TabsContent>
                             <TabsContent value="notes">
                                 <h2 className="text-2xl font-bold mb-6">

@@ -67,6 +67,7 @@ model Project {
   members     ProjectAssignment[]
   tasks       Task[]
   ActivityLog ActivityLog[]
+  Document    Document?
 
   @@map("projects")
 }
@@ -175,4 +176,16 @@ model InviteToken {
   updatedAt      DateTime @updatedAt
 
   @@map("invite_tokens")
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  projectId String   @unique
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("documents")
 }
