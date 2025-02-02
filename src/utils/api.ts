@@ -1,4 +1,4 @@
-import { ProjectItem, TeamMember, Project, DashboardData, FetchActivitiesFilters } from "./types";
+import { ProjectItem, TeamMember, Project, DashboardData, FetchActivitiesFilters, DocumentData } from "./types";
 
 export const createProject = async (project: Project) => {
     const response = await fetch("/api/projects", {
@@ -154,5 +154,11 @@ export async function fetchActivities(projectId: string, filters: FetchActivitie
   return response.json()
 }
 
+export async function fetchDocument(projectId: string): Promise<DocumentData> {
+    const res = await fetch(`/api/projects/${projectId}/documentation`);
+    if (!res.ok) throw new Error("Failed to fetch documentation");
+    const data = await res.json();
+    return data.document;
+}
 
 

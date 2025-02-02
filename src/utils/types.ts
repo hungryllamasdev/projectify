@@ -117,5 +117,13 @@ export interface FetchActivitiesFilters {
   selectedUser: string
 }
 
+export interface DocumentData {
+  id: string;
+  title: string;
+  content: string;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
   
