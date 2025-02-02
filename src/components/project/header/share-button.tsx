@@ -1,16 +1,18 @@
-'use client'
-
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Share } from 'lucide-react'
-import { ShareDialog } from './share-dialog'
+import { Button } from "@/components/ui/button";
+import { Project, TeamMember, User } from "@/utils/types";
+import { Share } from "lucide-react";
+import { useState } from "react";
+import { ShareDialog } from "./share-dialog";
 
 interface ShareButtonProps {
-  documentName?: string
+  documentName: string;
+  project: Project;
+  teamMembers: TeamMember[];
+  currentUser: User;
 }
 
-export function ShareButton({ documentName }: ShareButtonProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+export function ShareButton({ documentName, project, teamMembers, currentUser }: ShareButtonProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
@@ -22,8 +24,10 @@ export function ShareButton({ documentName }: ShareButtonProps) {
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         documentName={documentName}
+        project={project}
+        teamMembers={teamMembers}
+        currentUser={currentUser}
       />
     </>
-  )
+  );
 }
-

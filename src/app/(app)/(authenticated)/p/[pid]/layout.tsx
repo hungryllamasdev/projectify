@@ -82,11 +82,19 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
     }
 
     return (
-        <PIDProvider pid={pid}>
+        <PIDProvider pid={params.pid as string}>
             <ProjectHeader
                 initialProjectName={projectData?.name || "Untitled Project"}
                 teamMembers={assignableUsers}
-                onShare={handleShare}
+                onShare={handleShare} 
+                project={projectData}
+                currentUser={{
+                    id: dashboardData?.team.find(member => member.role === 'OWNER')?.email || '',
+                    name: dashboardData?.team.find(member => member.role === 'OWNER')?.name || '',
+                    email: dashboardData?.team.find(member => member.role === 'OWNER')?.email || '',
+                    avatar: dashboardData?.team.find(member => member.role === 'OWNER')?.image || '',
+                }}
+                onProjectNameChange={(newName) => console.log("Project name changed:", newName)}
             />
             <div className="container mx-auto p-6">
                 <div className="flex justify-between items-center mb-4">

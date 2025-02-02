@@ -1,14 +1,19 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, ReactNode } from "react";
 
-const PIDContext = createContext();
+const PIDContext = createContext<string | undefined>(undefined);
 
-export const PIDProvider = ({ pid, children }) => (
+interface PIDProviderProps {
+    pid: string;
+    children: ReactNode;
+}
+
+export const PIDProvider = ({ pid, children }: PIDProviderProps) => (
     <PIDContext.Provider value={pid}>{children}</PIDContext.Provider>
 );
 
-export const usePID = () => {
+export const usePID = (): string => {
     const context = useContext(PIDContext);
-    if (!context) {
+    if (context === undefined) {
         throw new Error("usePID must be used within a PIDProvider");
     }
     return context;

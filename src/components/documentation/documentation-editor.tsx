@@ -1,29 +1,13 @@
-// src/components/documentation/documentation-editor.tsx
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { debounce } from "lodash";
 import { Button } from "@/components/ui/button";
 import { EditorToolbar } from "./editor-toolbar";
-
-interface DocumentData {
-    id: string;
-    title: string;
-    content: string;
-    projectId: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-async function fetchDocument(projectId: string): Promise<DocumentData> {
-    const res = await fetch(`/api/projects/${projectId}/documentation`);
-    if (!res.ok) throw new Error("Failed to fetch documentation");
-    const data = await res.json();
-    return data.document;
-}
+import { DocumentData } from "@/utils/types";
+import { fetchDocument } from "@/utils/api";
 
 async function updateDocument({
     projectId,
@@ -51,8 +35,9 @@ export default function ProjectDocumentationEditor({
 }) {
     const queryClient = useQueryClient();
     const [isSaving, setIsSaving] = useState(false);
+    const [unsavedChanges, setUnsavedChanges] = useState(false);
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Store save timer
 
-    // Fetch the project's documentation using React Query.
     const {
         data: document,
         isLoading,
@@ -62,20 +47,17 @@ export default function ProjectDocumentationEditor({
         queryFn: () => fetchDocument(projectId),
     });
 
-    // Set up a mutation for updating (autosaving) the documentation.
     const mutation = useMutation({
         mutationFn: updateDocument,
         onMutate: () => setIsSaving(true),
         onSuccess: (updatedDoc) => {
-            // Update cache if needed, but we don't want to overwrite editor content.
             queryClient.setQueryData(["documentation", projectId], updatedDoc);
             setIsSaving(false);
+            setUnsavedChanges(false);
         },
         onError: () => setIsSaving(false),
     });
 
-    // Initialize the TipTap editor with default content.
-    // We'll update the content once with the API data.
     const editor = useEditor({
         extensions: [
             StarterKit.configure({ heading: { levels: [1, 2, 3, 4, 5, 6] } }),
@@ -87,11 +69,11 @@ export default function ProjectDocumentationEditor({
             },
         },
         onUpdate: ({ editor }) => {
-            handleAutosave(editor.getHTML());
+            setUnsavedChanges(true);
+            handleContentChange(editor.getHTML());
         },
     });
 
-    // Use a ref to ensure we only set the content from API once (on mount).
     const initialContentLoaded = useRef(false);
 
     useEffect(() => {
@@ -101,21 +83,32 @@ export default function ProjectDocumentationEditor({
         }
     }, [editor, document]);
 
-    // Debounce the autosave to avoid excessive API calls.
-    const debouncedSave = useCallback(
-        debounce((htmlContent: string) => {
-            // Always send the latest content as a patch.
-            mutation.mutate({
-                projectId,
-                title: document?.title || "Project Documentation",
-                content: htmlContent,
-            });
-        }, 1000),
-        [mutation, projectId, document]
-    );
+    // Function to trigger saving after 30 seconds of inactivity
+    const handleContentChange = (htmlContent: string) => {
+        setUnsavedChanges(true);
 
-    const handleAutosave = (htmlContent: string) => {
-        debouncedSave(htmlContent);
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current); // Reset the timer if typing continues
+        }
+
+        saveTimeoutRef.current = setTimeout(() => {
+            saveDocument(htmlContent);
+        }, 10000); // Wait 30 seconds after last edit before saving
+    };
+
+    // Function to manually save immediately
+    const saveDocument = (content?: string) => {
+        if (!editor) return;
+
+        mutation.mutate({
+            projectId,
+            title: document?.title || "Project Documentation",
+            content: content || editor.getHTML(),
+        });
+
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current); // Clear any scheduled saves
+        }
     };
 
     if (isLoading) return <p>Loading documentation...</p>;
@@ -128,8 +121,8 @@ export default function ProjectDocumentationEditor({
                 <EditorContent editor={editor} className="h-full" />
             </div>
             <div className="flex justify-end mt-4">
-                <Button disabled={isSaving}>
-                    {isSaving ? "Saving..." : "Saved"}
+                <Button onClick={() => saveDocument()} disabled={isSaving}>
+                    {isSaving ? "Saving..." : unsavedChanges ? "Save Now" : "Saved"}
                 </Button>
             </div>
         </div>
