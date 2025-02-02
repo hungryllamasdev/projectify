@@ -86,7 +86,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
             <ProjectHeader
                 initialProjectName={projectData?.name || "Untitled Project"}
                 teamMembers={assignableUsers}
-                onShare={handleShare}
+                onShare={handleShare} 
                 project={projectData}
                 currentUser={{
                     id: dashboardData?.team.find(member => member.role === 'OWNER')?.email || '',
@@ -94,6 +94,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                     email: dashboardData?.team.find(member => member.role === 'OWNER')?.email || '',
                     avatar: dashboardData?.team.find(member => member.role === 'OWNER')?.image || '',
                 }}
+                onProjectNameChange={(newName) => console.log("Project name changed:", newName)}
             />
             <div className="container mx-auto p-6">
                 <div className="flex justify-between items-center mb-4">

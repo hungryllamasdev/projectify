@@ -18,6 +18,7 @@ export interface ProjectHeaderProps {
     onProjectNameChange: (newName: string) => void;
     project: Project;
     currentUser: User;
+    onShare?: () => void;
   }
 
   export function ProjectHeader({
@@ -26,6 +27,7 @@ export interface ProjectHeaderProps {
     onProjectNameChange,
     project,
     currentUser,
+    onShare
   }: ProjectHeaderProps) {
     const [projectName, setProjectName] = useState(initialProjectName);
 
