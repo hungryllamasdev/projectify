@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Link, Settings, Users } from "lucide-react";
+import { Check, Copy, Link, Settings, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -23,17 +23,24 @@ import { createInviteToken } from "@/utils/api";
 import { useForm } from "@tanstack/react-form";
 import { usePID } from "@/contexts/pid-context";
 import { Icons } from "@/components/icons";
+import { Project, TeamMember, User } from "@/utils/types";
 
 interface ShareDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    documentName?: string;
+    documentName: string;
+    project: Project;
+    teamMembers: TeamMember[];
+    currentUser: User;
 }
 
 export function ShareDialog({
     isOpen,
     onClose,
-    documentName = "Untitled document",
+    documentName,
+    project,
+    teamMembers,
+    currentUser,
 }: ShareDialogProps) {
     const [copied, setCopied] = useState(false);
 
@@ -49,9 +56,12 @@ export function ShareDialog({
             maxUses: 2,
             accessLevel: "restricted",
         },
-        onSubmit: async ({ values }) => {
-            console.log(...values);
-            createInviteTokenMutation.mutate({ projectId, ...values });
+        onSubmit: async ({ value }) => {
+            console.log(value);
+            createInviteTokenMutation.mutate({ 
+                projectId, 
+                ...value 
+            });
         },
     });
 
@@ -96,32 +106,27 @@ export function ShareDialog({
 
                     <div className="space-y-4">
                         <div>
-                            <h4 className="mb-2 text-sm font-medium">
-                                People with access
-                            </h4>
-                            <div className="flex items-center justify-between py-1">
-                                <div className="flex items-center gap-2">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                                        <AvatarFallback>H</AvatarFallback>
-                                    </Avatar>
-                                    <div className="text-sm">
-                                        <div>hungryllama (you)</div>
-                                        <div className="text-muted-foreground">
-                                            hungryllama999@gmail.com
+                            <h4 className="mb-2 text-sm font-medium">People with access</h4>
+                            {teamMembers.map((member) => (
+                                <div key={member.id} className="flex items-center justify-between py-1">
+                                    <div className="flex items-center gap-2">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={member.avatar || "/placeholder.svg?height=32&width=32"} />
+                                            <AvatarFallback>{member.name[0]}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="text-sm">
+                                            <div>{member.name} {member.id === currentUser.id && "(you)"}</div>
                                         </div>
                                     </div>
+                                    <div className="text-sm text-muted-foreground">
+                                        {member.id === currentUser.id ? "Owner" : "Member"}
+                                    </div>
                                 </div>
-                                <div className="text-sm text-muted-foreground">
-                                    Owner
-                                </div>
-                            </div>
+                            ))}
                         </div>
 
                         <div>
-                            <h4 className="mb-2 text-sm font-medium">
-                                General access
-                            </h4>
+                            <h4 className="mb-2 text-sm font-medium">General access</h4>
                             <div className="flex items-center gap-2 rounded-lg border p-2">
                                 <Link className="h-5 w-5 text-muted-foreground" />
                                 <Select defaultValue="restricted">
@@ -129,15 +134,9 @@ export function ShareDialog({
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="restricted">
-                                            Restricted
-                                        </SelectItem>
-                                        <SelectItem value="anyone">
-                                            Anyone with the link
-                                        </SelectItem>
-                                        <SelectItem value="domain">
-                                            Anyone in your organization
-                                        </SelectItem>
+                                        <SelectItem value="restricted">Restricted</SelectItem>
+                                        <SelectItem value="anyone">Anyone with the link</SelectItem>
+                                        <SelectItem value="domain">Anyone in your organization</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

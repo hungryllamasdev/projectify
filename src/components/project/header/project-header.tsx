@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ProjectName } from "./project-name";
 import { TeamMembers } from "./team-members";
 import { ShareButton } from "./share-button";
-import { PermissionsDropdown } from "./permissions-dropdown";
+import { Project, User } from "@/utils/types";
 
 export interface TeamMember {
     id: string;
@@ -16,14 +16,17 @@ export interface ProjectHeaderProps {
     initialProjectName: string;
     teamMembers: TeamMember[];
     onProjectNameChange: (newName: string) => void;
-    projectId: string;
-}
+    project: Project;
+    currentUser: User;
+  }
 
-export function ProjectHeader({
+  export function ProjectHeader({
     initialProjectName,
     teamMembers,
     onProjectNameChange,
-}: ProjectHeaderProps) {
+    project,
+    currentUser,
+  }: ProjectHeaderProps) {
     const [projectName, setProjectName] = useState(initialProjectName);
 
     const handleProjectNameChange = (newName: string) => {
@@ -41,7 +44,12 @@ export function ProjectHeader({
                 <TeamMembers members={teamMembers} />
             </div>
             <div className="flex items-center gap-4">
-                <ShareButton documentName={projectName} />
+            <ShareButton
+                documentName={projectName}
+                project={project}
+                teamMembers={teamMembers}
+                currentUser={currentUser}
+            />
             </div>
         </header>
     );
