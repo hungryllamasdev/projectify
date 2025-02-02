@@ -1,26 +1,45 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Activity } from 'lucide-react'
+import { Activity } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DatePickerWithRange } from "@/components/ui/date-picker-with-range"
+import { useQuery } from "@tanstack/react-query"
+import type { TeamMember, ActivityLogItem } from "@/utils/types"
+import type { DateRange } from "react-day-picker"
+import { fetchActivities } from "@/utils/api"
 
-export default function ActivityLog({ projectId }: { projectId: string }) {
+interface ActivityLogProps {
+  projectId: string
+  members: TeamMember[]
+}
+
+export default function ActivityLog({ projectId, members }: ActivityLogProps) {
   const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [selectedUser, setSelectedUser] = useState("all")
 
-  // This data would be fetched from your API
-  const activities = [
-    { id: 1, type: 'task_completed', user: 'John Doe', task: 'Task 1', timestamp: '2023-06-28 14:30' },
-    { id: 2, type: 'task_added', user: 'Jane Smith', task: 'New Task', timestamp: '2023-06-28 13:45' },
-    // Add more activities
-  ]
+  const {
+    data: activities,
+    isLoading,
+    isError,
+  } = useQuery<ActivityLogItem[]>({
+    queryKey: ["activities", projectId, searchTerm, dateRange, selectedUser],
+    queryFn: () => fetchActivities(projectId, { searchTerm, dateRange, selectedUser }),
+    enabled: open,
+  })
 
-  const pendingTasks = [
-    { id: 1, title: 'Urgent Task', deadline: '2023-06-30', assignee: 'John Doe' },
-    { id: 2, title: 'Important Task', deadline: '2023-07-02', assignee: 'Jane Smith' },
-    // Add more pending tasks
-  ]
+  const formatActivityType = (type: string) => {
+    return type
+      .split("_")
+      .map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ")
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -35,34 +54,67 @@ export default function ActivityLog({ projectId }: { projectId: string }) {
           <SheetTitle>Activity Log</SheetTitle>
         </SheetHeader>
         <div className="mt-4 space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Pending Tasks</h3>
-            <ul className="space-y-2">
-              {pendingTasks.map(task => (
-                <li key={task.id} className="text-sm">
-                  <span className="font-medium">{task.title}</span>
-                  <br />
-                  <span className="text-gray-600">Due: {task.deadline}</span>
-                  <br />
-                  <span className="text-gray-600">Assigned to: {task.assignee}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="flex flex-col gap-2">
+            <Input
+              placeholder="Search task or ID"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1"
+            />
+            <DatePickerWithRange dateRange={dateRange} onDateRangeChange={setDateRange} />
+            <Select value={selectedUser} onValueChange={setSelectedUser}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by user" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Users</SelectItem>
+                {members.map((member) => (
+                  <SelectItem key={member.id} value={member.id}>
+                    <div className="flex items-center gap-2">
+                      {member.avatar && (
+                        <img
+                          src={member.avatar || "/placeholder.svg"}
+                          alt={member.name}
+                          className="h-4 w-4 rounded-full"
+                        />
+                      )}
+                      <span>{member.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Recent Activities</h3>
-            <ScrollArea className="h-[300px]">
-              <ul className="space-y-2">
-                {activities.map(activity => (
-                  <li key={activity.id} className="text-sm">
-                    <span className="font-medium">{activity.user}</span> {activity.type === 'task_completed' ? 'completed' : 'added'} {activity.task}
-                    <br />
-                    <span className="text-gray-600">{activity.timestamp}</span>
+          <ScrollArea className="h-[500px] pr-4">
+            {isLoading && <p className="text-center text-gray-500">Loading activities...</p>}
+            {isError && <p className="text-center text-red-500">Error loading activities</p>}
+            {activities?.length ? (
+              <ul className="space-y-4">
+                {activities.map((activity) => (
+                  <li key={activity.id} className="text-sm border-b pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{activity.user?.name || "Unknown User"}</span>
+                      <span className="text-gray-500 text-xs">{new Date(activity.timestamp).toLocaleString()}</span>
+                    </div>
+                    <p className="mt-1">
+                      {formatActivityType(activity.type)}
+                      {activity.task && (
+                        <>
+                          {" "}
+                          on task{" "}
+                          <span className="font-medium">
+                            {activity.task.title} ({activity.taskId})
+                          </span>
+                        </>
+                      )}
+                    </p>
                   </li>
                 ))}
               </ul>
-            </ScrollArea>
-          </div>
+            ) : (
+              <p className="text-center text-gray-500">No activities found</p>
+            )}
+          </ScrollArea>
         </div>
       </SheetContent>
     </Sheet>

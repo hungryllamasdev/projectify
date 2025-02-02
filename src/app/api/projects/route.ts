@@ -88,12 +88,16 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        console.log("np", newProject)
+
         if (!newProject) {
             return NextResponse.json(
                 { error: "An error occurred while creating the project" },
                 { status: 500 }
             );
         }
+
+        
 
         return NextResponse.json(newProject, { status: 201 });
     } catch (error) {

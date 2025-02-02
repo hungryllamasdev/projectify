@@ -1,18 +1,26 @@
-'use client'
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import type { TaskStatus } from "@prisma/client"
+import type { FinancialData } from "@/utils/types"
 
-const data = [
-  { name: 'Jan', total: 100 },
-  { name: 'Feb', total: 200 },
-  { name: 'Mar', total: 150 },
-  { name: 'Apr', total: 300 },
-  { name: 'May', total: 250 },
-  { name: 'Jun', total: 400 },
-]
+interface KeyMetricsProps {
+  data: {
+    status: TaskStatus
+    count: number
+  }[]
+  financialData: FinancialData
+}
 
-export default function KeyMetrics() {
+export default function KeyMetrics({ data, financialData }: KeyMetricsProps) {
+  const totalBudget = financialData.budget || 0
+  const totalExpenses = financialData.items.reduce(
+    (sum, item) => (item.type === "EXPENSE" ? sum + Number(item.amount) : sum),
+    0,
+  )
+  const budgetSpent = (totalExpenses / totalBudget) * 100
+
   return (
     <Card>
       <CardHeader>
@@ -28,29 +36,35 @@ export default function KeyMetrics() {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">$15,000</div>
+              <div className="text-2xl font-bold">${totalExpenses.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Budget Spent</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">98%</div>
-              <p className="text-xs text-muted-foreground">Quality Score</p>
+              <div className="text-2xl font-bold">{budgetSpent.toFixed(2)}%</div>
+              <p className="text-xs text-muted-foreground">Budget Utilization</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">4.5</div>
-              <p className="text-xs text-muted-foreground">Customer Satisfaction</p>
+              <div className="text-2xl font-bold">${totalBudget.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">Total Budget</p>
             </CardContent>
           </Card>
         </div>
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} />
-              <Bar dataKey="total" fill="#adfa1d" radius={[4, 4, 0, 0]} />
+              <XAxis dataKey="status" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis
+                stroke="#888888"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `${value}`}
+              />
+              <Bar dataKey="count" fill="#adfa1d" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
