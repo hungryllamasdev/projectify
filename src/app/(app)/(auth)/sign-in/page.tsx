@@ -1,89 +1,100 @@
-import { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { UserAuthForm } from "@/components/auth/user-auth-from";
+"use client"
 
-export const metadata: Metadata = {
-    title: "Authentication",
-    description: "Authentication forms built using the components.",
-};
+import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import Logo from "@/components/Logo"
 
-export default function AuthenticationPage() {
-    return (
-        <>
-            <div className="md:hidden">
-                <Image
-                    src="/examples/authentication-light.png"
-                    width={1280}
-                    height={843}
-                    alt="Authentication"
-                    className="block dark:hidden"
-                />
-                <Image
-                    src="/examples/authentication-dark.png"
-                    width={1280}
-                    height={843}
-                    alt="Authentication"
-                    className="hidden dark:block"
-                />
+export default function SignUpPage() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    // Here you would typically handle the sign-up logic
+    console.log("Sign up with", email, password)
+    // Redirect to dashboard or show confirmation
+    router.push("/dashboard")
+  }
+
+  return (
+    <div className="flex min-h-screen bg-white dark:bg-black">
+      <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
+        <div className="mx-auto w-full max-w-sm lg:w-96">
+          <div className="flex justify-center">
+            <Logo className="h-12 w-12 text-black dark:text-white" />
+          </div>
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-black dark:text-white text-center">
+            Create your account
+          </h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
+            Or{" "}
+            <Link href="/sign-in" className="font-medium text-black dark:text-white hover:underline">
+              sign in to your account
+            </Link>
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-white dark:focus:ring-white"
+              />
             </div>
-            <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-                <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-                    <div className="absolute inset-0 bg-zinc-900" />
-                    <div className="relative z-20 flex items-center text-lg font-medium">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="mr-2 h-6 w-6"
-                        >
-                            <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-                        </svg>
-                        Acme Inc
-                    </div>
-                    <div className="relative z-20 mt-auto">
-                        <blockquote className="space-y-2">
-                            <p className="text-lg">
-                                &ldquo;This app has saved me countless hours of
-                                work and helped me deliver stunning designs to
-                                my clients faster than ever before.&rdquo;
-                            </p>
-                            <footer className="text-sm">Sofia Davis</footer>
-                        </blockquote>
-                    </div>
-                </div>
-                <div className="lg:p-8">
-                    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-                        <div className="flex flex-col space-y-2 text-center">
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                Get Started
-                            </h1>
-                        </div>
-                        <UserAuthForm />
-                        <p className="px-8 text-center text-sm text-muted-foreground">
-                            By clicking continue, you agree to our{" "}
-                            <Link
-                                href="/terms"
-                                className="underline underline-offset-4 hover:text-primary"
-                            >
-                                Terms of Service
-                            </Link>{" "}
-                            and{" "}
-                            <Link
-                                href="/privacy"
-                                className="underline underline-offset-4 hover:text-primary"
-                            >
-                                Privacy Policy
-                            </Link>
-                            .
-                        </p>
-                    </div>
-                </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-white dark:focus:ring-white"
+              />
             </div>
-        </>
-    );
+
+            <Button
+              type="submit"
+              className="w-full bg-black text-white dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
+            >
+              Sign up
+            </Button>
+          </form>
+
+          <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+            By signing up, you agree to our{" "}
+            <Link href="/terms" className="font-medium text-black dark:text-white hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="font-medium text-black dark:text-white hover:underline">
+              Privacy Policy
+            </Link>
+          </p>
+        </div>
+      </div>
+      <div className="relative hidden w-0 flex-1 lg:block">
+        <img
+          className="absolute inset-0 h-full w-full object-cover"
+          src="https://images.unsplash.com/photo-1505904267569-f02eaeb45a4c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1908&q=80"
+          alt=""
+        />
+      </div>
+    </div>
+  )
 }
+
