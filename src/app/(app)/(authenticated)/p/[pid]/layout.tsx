@@ -12,6 +12,7 @@ import Calendar from "@/components/project/calendar/Calendar";
 import List from "@/components/project/List";
 import GanttChart from "@/components/project/GanttChart";
 import CustomKanban from "@/components/project/Kanban";
+import Finance from "@/components/project/Finance";
 import { PIDProvider } from "@/contexts/pid-context";
 import {
     fetchAssignableUsers,
@@ -19,7 +20,7 @@ import {
     fetchProjectDashboardData,
 } from "@/utils/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import ProjectDocumentationEditor from "@/components/documentation/documentation-editor";
+import ProjectDocumentationEditor from "@/components/project/documentation/documentation-editor";
 
 interface ProjectLayoutProps {
     children: React.ReactNode;
@@ -113,7 +114,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                                 <TabsTrigger value="calendar">
                                     Calendar
                                 </TabsTrigger>
-                                <TabsTrigger value="gantt">Gantt</TabsTrigger>
+                                <TabsTrigger value="finance">Finance</TabsTrigger>
                                 <TabsTrigger value="documentation">
                                     Documentation
                                 </TabsTrigger>
@@ -137,8 +138,8 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                             <TabsContent value="calendar">
                                 <Calendar data={projectData?.tasks || []} />
                             </TabsContent>
-                            <TabsContent value="gantt">
-                                <GanttChart />
+                            <TabsContent value="finance">
+                                <Finance projectId={pid} />
                             </TabsContent>
                             <TabsContent value="documentation">
                                 <ProjectDocumentationEditor projectId={pid} />

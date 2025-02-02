@@ -1,4 +1,4 @@
-import { ProjectItem, TeamMember, Project, DashboardData, FetchActivitiesFilters, DocumentData } from "./types";
+import { ProjectItem, TeamMember, Project, DashboardData, FetchActivitiesFilters, DocumentData, FinancialData, NewFinancialItem, UpdateBudgetData } from "./types";
 
 export const createProject = async (project: Project) => {
     const response = await fetch("/api/projects", {
@@ -130,13 +130,13 @@ export async function updateUserProfile(data: { name: string }): Promise<any> {
 }
 
 export async function fetchProjectDashboardData(projectId: string): Promise<DashboardData> {
-  const response = await fetch(`/api/projects/${projectId}/dashboard`);
+    const response = await fetch(`/api/projects/${projectId}/dashboard`)
   
-  if (!response.ok) {
-    throw new Error('Failed to fetch dashboard data');
-  }
-
-  return response.json();
+    if (!response.ok) {
+      throw new Error("Failed to fetch dashboard data")
+    }
+  
+    return response.json()
 }
 
 export async function fetchActivities(projectId: string, filters: FetchActivitiesFilters) {
@@ -161,4 +161,38 @@ export async function fetchDocument(projectId: string): Promise<DocumentData> {
     return data.document;
 }
 
-
+export async function fetchFinancialData(projectId: string): Promise<FinancialData> {
+    const response = await fetch(`/api/projects/${projectId}/finance`)
+    if (!response.ok) {
+      throw new Error("Failed to fetch financial data")
+    }
+    return response.json()
+}
+  
+export async function addFinancialItem(data: NewFinancialItem): Promise<FinancialData> {
+    const response = await fetch(`/api/projects/${data.projectId}/finance`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+  
+    if (!response.ok) {
+      throw new Error("Failed to add financial item")
+    }
+  
+    return response.json()
+}
+  
+  export async function updateBudget(data: UpdateBudgetData): Promise<FinancialData> {
+    const response = await fetch(`/api/projects/${data.projectId}/budget`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ budget: data.budget }),
+    })
+  
+    if (!response.ok) {
+      throw new Error("Failed to update budget")
+    }
+  
+    return response.json()
+}

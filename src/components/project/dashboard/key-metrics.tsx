@@ -3,15 +3,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import type { TaskStatus } from "@prisma/client"
+import type { FinancialData } from "@/utils/types"
 
 interface KeyMetricsProps {
   data: {
     status: TaskStatus
     count: number
   }[]
+  financialData: FinancialData
 }
 
-export default function KeyMetrics({ data }: KeyMetricsProps) {
+export default function KeyMetrics({ data, financialData }: KeyMetricsProps) {
+  const totalBudget = financialData.budget || 0
+  const totalExpenses = financialData.items.reduce(
+    (sum, item) => (item.type === "EXPENSE" ? sum + Number(item.amount) : sum),
+    0,
+  )
+  const budgetSpent = (totalExpenses / totalBudget) * 100
+
   return (
     <Card>
       <CardHeader>
@@ -27,20 +36,20 @@ export default function KeyMetrics({ data }: KeyMetricsProps) {
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">$15,000</div>
+              <div className="text-2xl font-bold">${totalExpenses.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Budget Spent</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">98%</div>
-              <p className="text-xs text-muted-foreground">Quality Score</p>
+              <div className="text-2xl font-bold">{budgetSpent.toFixed(2)}%</div>
+              <p className="text-xs text-muted-foreground">Budget Utilization</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold">4.5</div>
-              <p className="text-xs text-muted-foreground">Customer Satisfaction</p>
+              <div className="text-2xl font-bold">${totalBudget.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">Total Budget</p>
             </CardContent>
           </Card>
         </div>

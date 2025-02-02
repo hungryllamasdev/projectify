@@ -3,8 +3,8 @@ import TeamOverview from "@/components/project/dashboard/team-overview"
 import PriorityItems from "@/components/project/dashboard/priority-items"
 import QuickActions from "@/components/project/dashboard/quick-actions"
 import KeyMetrics from "@/components/project/dashboard/key-metrics"
-import { DashboardData } from "@/utils/types"
-
+import FinancialOverview from "@/components/project/dashboard/financial-overview"
+import type { DashboardData } from "@/utils/types"
 
 interface DashboardProps {
   data: DashboardData | undefined
@@ -30,7 +30,10 @@ export default function Dashboard({ data }: DashboardProps) {
         <QuickActions />
       </div>
       <div className="col-span-full">
-        <KeyMetrics data={data.tasksByStatus} />
+        <KeyMetrics data={data.tasksByStatus} financialData={data.financialData} />
+      </div>
+      <div className="col-span-full">
+        <FinancialOverview data={data.financialData} />
       </div>
     </div>
   )
