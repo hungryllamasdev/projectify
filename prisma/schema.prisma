@@ -68,6 +68,8 @@ model Project {
   tasks       Task[]
   ActivityLog ActivityLog[]
   Document    Document?
+  budget         Decimal?
+  financialItems FinancialItem[]
 
   @@map("projects")
 }
@@ -188,4 +190,34 @@ model Document {
   updatedAt DateTime @updatedAt
 
   @@map("documents")
+}
+
+model FinancialItem {
+  id          String           @id @default(cuid())
+  projectId   String
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type        FinancialItemType
+  category    String
+  description String
+  amount      Decimal
+  frequency   Frequency
+  linkedTo    String?
+  date        DateTime
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("financial_items")
+}
+
+enum FinancialItemType {
+  INCOME
+  EXPENSE
+}
+
+enum Frequency {
+  ONE_TIME
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
 }

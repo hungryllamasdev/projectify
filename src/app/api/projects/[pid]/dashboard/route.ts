@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { TaskStatus, TaskPriority, ProjectRole, ActivityType } from "@prisma/client";
+import { TaskStatus, TaskPriority, ProjectRole, ActivityType, FinancialItemType } from "@prisma/client";
 
 // Define types based on the schema
 interface DashboardResponse {
@@ -34,13 +34,26 @@ interface DashboardResponse {
     status: TaskStatus;
     count: number;
   }[];
+  financialData: {
+    budget: number | null;
+    totalIncome: number;
+    totalExpenses: number;
+    items: {
+      id: string;
+      type: FinancialItemType;
+      amount: number;
+      category: string;
+      description: string;
+      date: Date;
+    }[];
+  };
 }
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { pid: string } }
 ) {
-  const { pid } = await params;
+  const { pid } = params;
 
   try {
     const project = await prisma.project.findUnique({
@@ -65,6 +78,7 @@ export async function GET(
           },
           take: 10, // Limit to last 10 activities
         },
+        financialItems: true,
       },
     });
 
@@ -127,6 +141,15 @@ export async function GET(
       userName: log.user?.name || null,
     }));
 
+    // Calculate financial data
+    const totalIncome = project.financialItems
+      .filter(item => item.type === FinancialItemType.INCOME)
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const totalExpenses = project.financialItems
+      .filter(item => item.type === FinancialItemType.EXPENSE)
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+
     const response: DashboardResponse = {
       progress: {
         overall: overallProgress,
@@ -141,9 +164,20 @@ export async function GET(
       priorityItems,
       activityFeed,
       tasksByStatus,
+      financialData: {
+        budget: project.budget ? Number(project.budget) : null,
+        totalIncome,
+        totalExpenses,
+        items: project.financialItems.map(item => ({
+          id: item.id,
+          type: item.type,
+          amount: Number(item.amount),
+          category: item.category,
+          description: item.description,
+          date: item.date,
+        })),
+      },
     };
-
-    console.log(response)
 
     return NextResponse.json(response);
   } catch (error) {
