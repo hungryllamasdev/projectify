@@ -42,7 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             // session.user.id = token.id;
             // session.user.image = token.image;
 
-            console.log("session in auth callback", session);
+            // console.log("session in auth callback", session);
 
             return session;
         },

@@ -30,7 +30,7 @@ export const GET = async (
             );
         }
 
-        console.log(inviteToken);
+        // console.log(inviteToken);
 
         const isTokenValid = (token) => {
             const now = new Date();
@@ -40,7 +40,7 @@ export const GET = async (
             );
         };
 
-        console.log(isTokenValid(inviteToken));
+        // console.log(isTokenValid(inviteToken));
 
         return isTokenValid(inviteToken)
             ? NextResponse.json({

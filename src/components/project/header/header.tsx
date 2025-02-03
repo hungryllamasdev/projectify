@@ -37,12 +37,12 @@ const sampleTeamMembers: TeamMember[] = [
 
 export default function DashboardPage() {
     const handleProjectNameChange = (newName: string) => {
-        console.log("Project name changed:", newName);
+        // console.log("Project name changed:", newName);
         // Here you would typically update the project name in your backend
     };
 
     const handleShare = () => {
-        console.log("Share button clicked");
+        // console.log("Share button clicked");
         // Here you would typically open a share dialog or perform a share action
     };
 

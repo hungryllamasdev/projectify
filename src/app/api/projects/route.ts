@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const session = await auth();
-        console.log("User ID", session?.user?.id);
+        // console.log("User ID", session?.user?.id);
 
         if (!session || !session.user?.id) {
             return NextResponse.json(
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
         const { name, description, startDate } = body;
-        console.log("body", body);
+        // console.log("body", body);
         if (!name || !description || !startDate) {
             return NextResponse.json(
                 { error: "name, description, startDate are required" },
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        console.log("np", newProject)
+        // console.log("np", newProject)
 
         if (!newProject) {
             return NextResponse.json(
