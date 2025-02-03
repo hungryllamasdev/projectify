@@ -10,7 +10,6 @@ import { AddTaskButton } from "@/components/project/AddTaskButton";
 import Dashboard from "@/components/project/Dashboard";
 import Calendar from "@/components/project/calendar/Calendar";
 import List from "@/components/project/List";
-import GanttChart from "@/components/project/GanttChart";
 import CustomKanban from "@/components/project/Kanban";
 import Finance from "@/components/project/Finance";
 import { PIDProvider } from "@/contexts/pid-context";
@@ -118,7 +117,6 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                                 <TabsTrigger value="documentation">
                                     Documentation
                                 </TabsTrigger>
-                                <TabsTrigger value="notes">Notes</TabsTrigger>
                             </TabsList>
                             <AddTaskButton teamMembers={assignableUsers} />
                         </div>
@@ -143,12 +141,6 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
                             </TabsContent>
                             <TabsContent value="documentation">
                                 <ProjectDocumentationEditor projectId={pid} />
-                            </TabsContent>
-                            <TabsContent value="notes">
-                                <h2 className="text-2xl font-bold mb-6">
-                                    Notes
-                                </h2>
-                                <p>Notes content goes here.</p>
                             </TabsContent>
                         </Suspense>
                     </Tabs>

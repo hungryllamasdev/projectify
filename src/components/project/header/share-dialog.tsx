@@ -89,21 +89,8 @@ export function ShareDialog({
             <DialogContent className="sm:max-w-md">
                 <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                     <DialogTitle>Share "{documentName}"</DialogTitle>
-                    <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon">
-                            <Settings className="h-4 w-4" />
-                        </Button>
-                    </div>
                 </DialogHeader>
                 <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-2 rounded-lg border p-2">
-                        <Users className="h-5 w-5 text-muted-foreground" />
-                        <Input
-                            className="border-0 bg-transparent p-0 focus-visible:ring-0"
-                            placeholder="Add people, groups, and calendar events"
-                        />
-                    </div>
-
                     <div className="space-y-4">
                         <div>
                             <h4 className="mb-2 text-sm font-medium">People with access</h4>
