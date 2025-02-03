@@ -175,9 +175,6 @@ export function DataTableRowActions<TData>({
         throw new Error("Function not implemented.");
     }
 
-    console.log(task);
-    console.log("editedTask:", editedTask);
-
     useEffect(() => {
         if (isEditDialogOpen) {
             setEditedTask({

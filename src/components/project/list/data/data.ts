@@ -3,15 +3,15 @@ import { ArrowDown, ArrowRight, ArrowUp, CheckCircle, Circle, CircleOff, HelpCir
 export const labels = [
   {
     value: "bug",
-    label: "Bug",
+    label: "BUG",
   },
   {
     value: "feature",
-    label: "Feature",
+    label: "FEATURE",
   },
   {
-    value: "documentation",
-    label: "Documentation",
+    value: "task",
+    label: "TASK",
   },
 ]
 
