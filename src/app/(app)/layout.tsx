@@ -9,8 +9,8 @@ import { SessionProvider } from "next-auth/react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "Project-ify",
-    description: "Million dollar baby",
+    title: "projectify",
+    description: "A Minimalistic Project Management Tool for people who want to get things done. No fluff, just focus."
 };
 
 export default function RootLayout({
