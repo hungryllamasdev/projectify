@@ -1,4 +1,4 @@
-import { TaskStatus, TaskPriority, ProjectRole, ActivityType } from "@prisma/client";
+import { TaskStatus, TaskPriority, ProjectRole, ActivityType, FinancialItemType, Frequency } from "@prisma/client";
 import type { DateRange } from "react-day-picker"
 
 export interface User {
@@ -95,6 +95,7 @@ export interface DashboardData {
     status: TaskStatus
     count: number
   }[]
+  financialData: FinancialData
 }
 
 export interface ActivityLogItem {
@@ -117,5 +118,54 @@ export interface FetchActivitiesFilters {
   selectedUser: string
 }
 
+export interface DocumentData {
+  id: string;
+  title: string;
+  content: string;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
+export interface FinancialItem {
+  id: string
+  projectId: string
+  type: FinancialItemType
+  category: string
+  description: string
+  amount: number
+  frequency: Frequency
+  linkedTo?: string
+  date: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface FinancialData {
+  budget: number | null
+  items: FinancialItem[]
+}
+
+export interface NewFinancialItem {
+  projectId: string
+  type: FinancialItemType
+  category: string
+  description: string
+  amount: number
+  frequency: Frequency
+  linkedTo?: string
+  date: string
+}
+
+export interface UpdateBudgetData {
+  projectId: string
+  budget: number
+}
+
+
+
+
+
+
+export { Frequency };
   

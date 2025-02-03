@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { pid: string } }
 ) {
   try {
-    const { pid } = params
+    const { pid } = await params
     const { searchParams } = new URL(req.url)
 
     // Validate project ID
