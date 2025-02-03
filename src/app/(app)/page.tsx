@@ -42,7 +42,7 @@ export default function Page() {
             <p className="text-xl mb-8 max-w-2xl mx-auto">
               A minimalist project management tool for indie hackers and small teams who want to focus on getting things done.
             </p>
-            <a href="#join-contact" className="bg-white text-black px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-200 transition duration-300">
+            <a href="/sign-in" className="bg-white text-black px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-200 transition duration-300">
               Join Beta
             </a>
           </div>
@@ -79,7 +79,7 @@ export default function Page() {
                   </li>
                 ))}
               </ul>
-              <a href="#join-contact" className="bg-white text-black px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-200 transition duration-300 block text-center">
+              <a href="/sign-in" className="bg-white text-black px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-200 transition duration-300 block text-center">
                 Join Beta
               </a>
             </div>
