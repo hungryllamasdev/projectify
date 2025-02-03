@@ -53,7 +53,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { pid: string } }
 ) {
-  const { pid } = params;
+  const { pid } = await params;
 
   try {
     const project = await prisma.project.findUnique({
