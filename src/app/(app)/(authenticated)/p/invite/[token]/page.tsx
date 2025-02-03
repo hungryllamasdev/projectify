@@ -12,7 +12,7 @@ export default function InvitationPage({
     params: Promise<{ token: string }>;
 }) {
     const { token } = use(params); // Unwrap params properly
-    console.log(token);
+    // console.log(token);
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["invitation", token],

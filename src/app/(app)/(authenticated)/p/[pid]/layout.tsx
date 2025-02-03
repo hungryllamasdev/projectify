@@ -66,7 +66,7 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
     const [activeTab, setActiveTab] = useState("overview");
 
     const handleShare = () => {
-        console.log("Share button clicked");
+        // console.log("Share button clicked");
     };
 
     if (pathname?.includes("/invite")) {

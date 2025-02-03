@@ -91,7 +91,7 @@ export async function POST(
         const { title, type, description, priority, dueDate, assignedTo } =
             body;
 
-        console.log(body);
+        // console.log(body);
 
         // Validate required fields
         if (!title || !type || !priority) {
