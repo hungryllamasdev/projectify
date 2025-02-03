@@ -15,7 +15,7 @@ import {
 export async function UserNav() {
     // Fetch the current session from the server
     const session = await auth();
-    console.log(session?.user?.image)
+    // console.log(session?.user?.image)
 
     return (
         <DropdownMenu>

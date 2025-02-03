@@ -57,7 +57,7 @@ export function ShareDialog({
             accessLevel: "restricted",
         },
         onSubmit: async ({ value }) => {
-            console.log(value);
+            // console.log(value);
             createInviteTokenMutation.mutate({ 
                 projectId, 
                 ...value 

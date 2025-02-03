@@ -123,7 +123,7 @@ export default function Finance({ projectId }: { projectId: string }) {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Expenses</h3>
-                <p className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-red-600">${parseFloat(totalExpenses).toFixed(2)}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Balance</h3>
@@ -215,7 +215,7 @@ function FinancialItemsTable({ items }: { items: FinancialItem[] }) {
             <TableCell>{item.type}</TableCell>
             <TableCell>{item.category}</TableCell>
             <TableCell>{item.description}</TableCell>
-            <TableCell>${item.amount.toFixed(2)}</TableCell>
+            <TableCell>${parseFloat(item.amount).toFixed(2)}</TableCell>
             <TableCell>{item.frequency}</TableCell>
             <TableCell>{item.linkedTo}</TableCell>
             <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
@@ -322,7 +322,7 @@ function UpdateBudgetDialog({
             type="number"
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            placeholder={`Current budget: $${currentBudget.toFixed(2)}`}
+            placeholder={`Current budget: $${parseFloat(currentBudget).toFixed(2)}`}
           />
           <Button className="w-full" onClick={handleUpdateBudget}>
             Update Budget
