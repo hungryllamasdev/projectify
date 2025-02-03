@@ -33,15 +33,9 @@ export default function TeamOverview({ data }: TeamOverviewProps) {
                 <p className="text-sm font-medium">{member.name}</p>
                 <p className="text-xs text-gray-500">{member.role}</p>
               </div>
-              <div className="ml-auto">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              </div>
             </div>
           ))}
         </div>
-        <Button className="w-full mt-4" variant="outline">
-          <Plus className="mr-2 h-4 w-4" /> Assign New Task
-        </Button>
       </CardContent>
     </Card>
   )

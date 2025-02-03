@@ -17,11 +17,11 @@ interface ProgressOverviewProps {
 
 export default function ProgressOverview({ data }: ProgressOverviewProps) {
   return (
-    <CollapsibleCard title="Progress Overview">
+    <>
+      <h1>Progress Overview</h1>
       <div className="space-y-4">
         <div>
           <div className="flex justify-between mb-1 text-sm font-medium">
-            <span>Overall Progress</span>
             <span>{data.overall}%</span>
           </div>
           <Progress value={data.overall} className="w-full" />
@@ -42,42 +42,9 @@ export default function ProgressOverview({ data }: ProgressOverviewProps) {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <p className="text-sm font-medium">Hours Logged</p>
-                  <p className="text-2xl font-bold">120/200</p>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>60% of estimated hours used</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <p className="text-sm font-medium">Next Milestone</p>
-                  <p className="text-2xl font-bold">15 Days</p>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Milestone: Beta Release</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <div>
-            <p className="text-sm font-medium">Sprint Progress</p>
-            <Progress value={80} className="w-full mt-2" />
-          </div>
         </div>
-        <Button variant="outline" className="w-full">
-          See All Progress Details
-        </Button>
       </div>
-    </CollapsibleCard>
+    </>
   )
 }
 
