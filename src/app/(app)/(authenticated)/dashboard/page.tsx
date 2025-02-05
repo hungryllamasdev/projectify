@@ -45,9 +45,11 @@ export default function Dashboard() {
     const { myTasks, projects, pinnedTasks, upcomingDeadlines } = data;
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-4xl font-bold mb-8">Project Dashboard</h1>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="container mx-auto p-4 sm:p-6">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-8">
+                Dashboard
+            </h1>
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                         <CardTitle className="text-sm font-medium">
@@ -56,7 +58,7 @@ export default function Dashboard() {
                         <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <ScrollArea className="h-[200px]">
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
                             {myTasks.map((task) => (
                                 <div
                                     key={task.id}
@@ -82,7 +84,7 @@ export default function Dashboard() {
                         <Folder className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <ScrollArea className="h-[200px]">
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
                             {projects.map((project) => (
                                 <div
                                     key={project.id}
@@ -113,7 +115,7 @@ export default function Dashboard() {
                         <Pin className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <ScrollArea className="h-[200px]">
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
                             {pinnedTasks.map((task) => (
                                 <div
                                     key={task.id}
@@ -136,7 +138,7 @@ export default function Dashboard() {
                         <CalendarDays className="w-4 h-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <ScrollArea className="h-[200px]">
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
                             {upcomingDeadlines.map((deadline) => (
                                 <div
                                     key={deadline.id}
@@ -163,13 +165,23 @@ export default function Dashboard() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue="tasks" className="w-full">
-                        <TabsList>
-                            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                            <TabsTrigger value="projects">Projects</TabsTrigger>
+                    <Tabs defaultValue="tasks" className="w-full space-y-4">
+                        <TabsList className="w-full sm:w-auto">
+                            <TabsTrigger
+                                value="tasks"
+                                className="flex-1 sm:flex-none"
+                            >
+                                Tasks
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="projects"
+                                className="flex-1 sm:flex-none"
+                            >
+                                Projects
+                            </TabsTrigger>
                         </TabsList>
                         <TabsContent value="tasks">
-                            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                                 <Card>
                                     <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
                                         <CardTitle className="text-sm font-medium">
@@ -241,7 +253,7 @@ export default function Dashboard() {
                             </div>
                         </TabsContent>
                         <TabsContent value="projects">
-                            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            <div className="mt-4 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                                 {projects.map((project) => (
                                     <Card
                                         key={project.id}
