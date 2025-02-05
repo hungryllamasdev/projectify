@@ -86,36 +86,74 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
             <ProjectHeader
                 initialProjectName={projectData?.name || "Untitled Project"}
                 teamMembers={assignableUsers}
-                onShare={handleShare} 
+                onShare={handleShare}
                 project={projectData}
                 currentUser={{
-                    id: dashboardData?.team.find(member => member.role === 'OWNER')?.email || '',
-                    name: dashboardData?.team.find(member => member.role === 'OWNER')?.name || '',
-                    email: dashboardData?.team.find(member => member.role === 'OWNER')?.email || '',
-                    avatar: dashboardData?.team.find(member => member.role === 'OWNER')?.image || '',
+                    id:
+                        dashboardData?.team.find(
+                            (member) => member.role === "OWNER"
+                        )?.email || "",
+                    name:
+                        dashboardData?.team.find(
+                            (member) => member.role === "OWNER"
+                        )?.name || "",
+                    email:
+                        dashboardData?.team.find(
+                            (member) => member.role === "OWNER"
+                        )?.email || "",
+                    avatar:
+                        dashboardData?.team.find(
+                            (member) => member.role === "OWNER"
+                        )?.image || "",
                 }}
-                onProjectNameChange={(newName) => console.log("Project name changed:", newName)}
+                onProjectNameChange={(newName) =>
+                    console.log("Project name changed:", newName)
+                }
             />
-            <div className="container mx-auto p-6">
-                <div className="flex justify-between items-center mb-4">
+            <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-4 sm:space-y-0">
                     <Tabs
                         value={activeTab}
                         onValueChange={setActiveTab}
                         className="space-y-4 w-full"
                     >
-                        <div className="flex justify-between items-center">
-                            <TabsList>
-                                <TabsTrigger value="overview">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                            <TabsList className="flex flex-wrap justify-start">
+                                <TabsTrigger
+                                    value="overview"
+                                    className="mb-2 sm:mb-0"
+                                >
                                     Overview
                                 </TabsTrigger>
-                                <TabsTrigger value="kanban">Kanban</TabsTrigger>
-                                <TabsTrigger value="list">List</TabsTrigger>
-                                <TabsTrigger value="calendar">
+                                <TabsTrigger
+                                    value="kanban"
+                                    className="mb-2 sm:mb-0"
+                                >
+                                    Kanban
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="list"
+                                    className="mb-2 sm:mb-0"
+                                >
+                                    List
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="calendar"
+                                    className="mb-2 sm:mb-0"
+                                >
                                     Calendar
                                 </TabsTrigger>
-                                <TabsTrigger value="finance">Finance</TabsTrigger>
-                                <TabsTrigger value="documentation">
-                                    Documentation
+                                <TabsTrigger
+                                    value="finance"
+                                    className="mb-2 sm:mb-0"
+                                >
+                                    Finance
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="documentation"
+                                    className="mb-2 sm:mb-0"
+                                >
+                                    Docs
                                 </TabsTrigger>
                             </TabsList>
                             <AddTaskButton teamMembers={assignableUsers} />
@@ -160,16 +198,16 @@ export default function ProjectLayout({ children }: ProjectLayoutProps) {
 
 function LoadingSkeleton() {
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <Skeleton className="w-[200px] h-[20px]" />
+        <div className="flex items-center justify-center min-h-screen p-4">
+            <Skeleton className="w-full max-w-[200px] h-[20px]" />
         </div>
     );
 }
 
 function ErrorState() {
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="text-lg text-red-500">
+        <div className="flex items-center justify-center min-h-screen p-4">
+            <div className="text-lg text-red-500 text-center">
                 Error loading project data.
             </div>
         </div>
@@ -178,10 +216,10 @@ function ErrorState() {
 
 function TabContentSkeleton() {
     return (
-        <div className="space-y-4">
-            <Skeleton className="w-full h-[200px]" />
-            <Skeleton className="w-full h-[100px]" />
-            <Skeleton className="w-full h-[100px]" />
+        <div className="space-y-4 p-4">
+            <Skeleton className="w-full h-[100px] sm:h-[200px]" />
+            <Skeleton className="w-full h-[50px] sm:h-[100px]" />
+            <Skeleton className="w-full h-[50px] sm:h-[100px]" />
         </div>
     );
 }
