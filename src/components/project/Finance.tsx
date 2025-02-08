@@ -12,9 +12,11 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } fro
 import { fetchFinancialData, addFinancialItem, updateBudget } from "@/utils/api"
 import { Frequency, FinancialItemType } from "@prisma/client"
 import type { NewFinancialItem, FinancialData, FinancialItem } from "@/utils/types"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export default function Finance({ projectId }: { projectId: string }) {
   const queryClient = useQueryClient()
+  const isMobile = useIsMobile()
   const [isAddItemOpen, setIsAddItemOpen] = useState(false)
   const [isUpdateBudgetOpen, setIsUpdateBudgetOpen] = useState(false)
   const [newItem, setNewItem] = useState<NewFinancialItem>({
@@ -110,20 +112,20 @@ export default function Finance({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"} gap-6`}>
         <Card>
           <CardHeader>
             <CardTitle>Financial Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-4 mb-4`}>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Income</h3>
                 <p className="text-2xl font-bold text-green-600">${totalIncome.toFixed(2)}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Expenses</h3>
-                <p className="text-2xl font-bold text-red-600">${parseFloat(totalExpenses).toFixed(2)}</p>
+                <p className="text-2xl font-bold text-red-600">${Number.parseFloat(totalExpenses).toFixed(2)}</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Balance</h3>
@@ -132,7 +134,7 @@ export default function Finance({ projectId }: { projectId: string }) {
                 </p>
               </div>
             </div>
-            <div className="flex justify-between items-center mb-4">
+            <div className={`flex ${isMobile ? "flex-col" : "justify-between"} items-center mb-4`}>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Current Budget</h3>
                 <p className="text-2xl font-bold">${Number(financialData.budget || 0).toFixed(2)}</p>
@@ -149,7 +151,7 @@ export default function Finance({ projectId }: { projectId: string }) {
             <CardTitle>Financial Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
+            <div className={`h-${isMobile ? "48" : "64"}`}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <XAxis dataKey="name" />
@@ -169,7 +171,7 @@ export default function Finance({ projectId }: { projectId: string }) {
           <CardTitle>Financial Items</CardTitle>
         </CardHeader>
         <CardContent>
-          <FinancialItemsTable items={financialData.items} />
+          <FinancialItemsTable items={financialData.items} isMobile={isMobile} />
         </CardContent>
       </Card>
 
@@ -195,34 +197,44 @@ export default function Finance({ projectId }: { projectId: string }) {
   )
 }
 
-function FinancialItemsTable({ items }: { items: FinancialItem[] }) {
+function FinancialItemsTable({ items, isMobile }: { items: FinancialItem[]; isMobile: boolean }) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Type</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead>Frequency</TableHead>
-          <TableHead>Linked To</TableHead>
-          <TableHead>Date</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {items.map((item) => (
-          <TableRow key={item.id}>
-            <TableCell>{item.type}</TableCell>
-            <TableCell>{item.category}</TableCell>
-            <TableCell>{item.description}</TableCell>
-            <TableCell>${parseFloat(item.amount).toFixed(2)}</TableCell>
-            <TableCell>{item.frequency}</TableCell>
-            <TableCell>{item.linkedTo}</TableCell>
-            <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+    <div className={isMobile ? "overflow-x-auto" : ""}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Type</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Amount</TableHead>
+            {!isMobile && (
+              <>
+                <TableHead>Frequency</TableHead>
+                <TableHead>Linked To</TableHead>
+                <TableHead>Date</TableHead>
+              </>
+            )}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {items.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>{item.type}</TableCell>
+              <TableCell>{item.category}</TableCell>
+              <TableCell>{item.description}</TableCell>
+              <TableCell>${Number.parseFloat(item.amount).toFixed(2)}</TableCell>
+              {!isMobile && (
+                <>
+                  <TableCell>{item.frequency}</TableCell>
+                  <TableCell>{item.linkedTo}</TableCell>
+                  <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                </>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }
 
@@ -322,7 +334,7 @@ function UpdateBudgetDialog({
             type="number"
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            placeholder={`Current budget: $${parseFloat(currentBudget).toFixed(2)}`}
+            placeholder={`Current budget: $${Number.parseFloat(currentBudget).toFixed(2)}`}
           />
           <Button className="w-full" onClick={handleUpdateBudget}>
             Update Budget
