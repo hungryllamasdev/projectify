@@ -111,7 +111,7 @@ export function Sidebar() {
                   <div className="mt-4">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                       <div className="flex items-center justify-between mb-2">
-                        <Link href="/p" className="text-sm font-medium text-muted-foreground hover:text-primary">
+                        <Link href="/p" className="text-sm font-medium text-muted-foreground hover:text-primary" onClick={closeMobileMenu}>
                           Projects
                         </Link>
                         <DialogTrigger asChild>

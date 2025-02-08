@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { TeamMember, ActivityLogItem } from "@/utils/types"
 import type { DateRange } from "react-day-picker"
 import { fetchActivities } from "@/utils/api"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface ActivityLogProps {
   projectId: string
@@ -23,6 +24,7 @@ export default function ActivityLog({ projectId, members }: ActivityLogProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [selectedUser, setSelectedUser] = useState("all")
+  const isMobile = useIsMobile()
 
   const {
     data: activities,
@@ -44,12 +46,12 @@ export default function ActivityLog({ projectId, members }: ActivityLogProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="fixed bottom-4 right-4 z-50">
+        <Button variant="outline" className={`fixed ${isMobile ? "bottom-4 right-4" : "bottom-8 right-8"} z-50`}>
           <Activity className="mr-2 h-4 w-4" />
           Activity Log
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[400px] sm:w-[540px]">
+      <SheetContent className={isMobile ? "w-full" : "w-[400px] sm:w-[540px]"}>
         <SheetHeader>
           <SheetTitle>Activity Log</SheetTitle>
         </SheetHeader>
@@ -85,7 +87,7 @@ export default function ActivityLog({ projectId, members }: ActivityLogProps) {
               </SelectContent>
             </Select>
           </div>
-          <ScrollArea className="h-[500px] pr-4">
+          <ScrollArea className={`h-[${isMobile ? "300px" : "500px"}] pr-4`}>
             {isLoading && <p className="text-center text-gray-500">Loading activities...</p>}
             {isError && <p className="text-center text-red-500">Error loading activities</p>}
             {activities?.length ? (
