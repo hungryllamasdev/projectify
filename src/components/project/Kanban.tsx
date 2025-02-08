@@ -289,7 +289,7 @@ const Card = ({
                         dueDate,
                     } as Task)
                 }
-                className="cursor-grab rounded border border-neutral-700 bg-slate-900 p-3 active:cursor-grabbing"
+                className="cursor-grab rounded border border-neutral-700 bg-slate-950 p-3 active:cursor-grabbing"
             >
                 <p className="text-sm text-neutral-100">{title}</p>
                 <div className="mt-2 flex justify-between text-xs">
