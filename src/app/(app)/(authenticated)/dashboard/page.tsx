@@ -49,114 +49,6 @@ export default function Dashboard() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-8">
                 Dashboard
             </h1>
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium">
-                            My Tasks
-                        </CardTitle>
-                        <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[150px] sm:h-[200px]">
-                            {myTasks.map((task) => (
-                                <div
-                                    key={task.id}
-                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
-                                    onClick={() => openModal(task)}
-                                >
-                                    <h3 className="font-medium">
-                                        {task.title}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        {task.status}
-                                    </p>
-                                </div>
-                            ))}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium">
-                            Projects
-                        </CardTitle>
-                        <Folder className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[150px] sm:h-[200px]">
-                            {projects.map((project) => (
-                                <div
-                                    key={project.id}
-                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
-                                    onClick={() => openModal(project)}
-                                >
-                                    <h3 className="font-medium">
-                                        {project.name}
-                                    </h3>
-                                    <div className="w-full bg-secondary mt-2 rounded-full h-2.5">
-                                        <div
-                                            className="bg-primary h-2.5 rounded-full"
-                                            style={{
-                                                width: `${project.progress}%`,
-                                            }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium">
-                            Pinned Tasks
-                        </CardTitle>
-                        <Pin className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[150px] sm:h-[200px]">
-                            {pinnedTasks.map((task) => (
-                                <div
-                                    key={task.id}
-                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
-                                    onClick={() => openModal(task)}
-                                >
-                                    <h3 className="font-medium">
-                                        {task.title}
-                                    </h3>
-                                </div>
-                            ))}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-sm font-medium">
-                            Upcoming Deadlines
-                        </CardTitle>
-                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[150px] sm:h-[200px]">
-                            {upcomingDeadlines.map((deadline) => (
-                                <div
-                                    key={deadline.id}
-                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
-                                    onClick={() => openModal(deadline)}
-                                >
-                                    <h3 className="font-medium">
-                                        {deadline.title}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        {deadline.date}
-                                    </p>
-                                </div>
-                            ))}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-            </div>
             <Card className="mt-6">
                 <CardHeader>
                     <CardTitle>Project Overview</CardTitle>
@@ -289,6 +181,114 @@ export default function Dashboard() {
                     </Tabs>
                 </CardContent>
             </Card>
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            My Tasks
+                        </CardTitle>
+                        <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
+                            {myTasks.map((task) => (
+                                <div
+                                    key={task.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(task)}
+                                >
+                                    <h3 className="font-medium">
+                                        {task.title}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {task.status}
+                                    </p>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            Projects
+                        </CardTitle>
+                        <Folder className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
+                            {projects.map((project) => (
+                                <div
+                                    key={project.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(project)}
+                                >
+                                    <h3 className="font-medium">
+                                        {project.name}
+                                    </h3>
+                                    <div className="w-full bg-secondary mt-2 rounded-full h-2.5">
+                                        <div
+                                            className="bg-primary h-2.5 rounded-full"
+                                            style={{
+                                                width: `${project.progress}%`,
+                                            }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            Pinned Tasks
+                        </CardTitle>
+                        <Pin className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
+                            {pinnedTasks.map((task) => (
+                                <div
+                                    key={task.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(task)}
+                                >
+                                    <h3 className="font-medium">
+                                        {task.title}
+                                    </h3>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                        <CardTitle className="text-sm font-medium">
+                            Upcoming Deadlines
+                        </CardTitle>
+                        <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[150px] sm:h-[200px]">
+                            {upcomingDeadlines.map((deadline) => (
+                                <div
+                                    key={deadline.id}
+                                    className="mb-4 cursor-pointer hover:bg-accent p-2 rounded"
+                                    onClick={() => openModal(deadline)}
+                                >
+                                    <h3 className="font-medium">
+                                        {deadline.title}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {deadline.date}
+                                    </p>
+                                </div>
+                            ))}
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+            </div>
             <ItemDetailsModal
                 item={selectedItem}
                 isOpen={isModalOpen}
